@@ -1,0 +1,12 @@
+package com.fhdo.bookingservice.domain;
+
+public enum BookingEvent {
+    CONFIRMATION_APPROVED,
+    CONFIRMATION_DECLINED,
+    VEHICLE_PARKED,
+    EXTENSION_REQUESTED,
+    OVERSTAY_OCCURRED,
+    BOOKING_COMPLETED,
+    BOOKING_CANCELLED,
+    PAYMENT_SUCCESSFUL
+}
