@@ -6,8 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
+import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
+import org.springframework.statemachine.listener.StateMachineListenerAdapter;
+import org.springframework.statemachine.state.State;
 
 import java.util.EnumSet;
 
@@ -45,5 +48,17 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<Bookin
                 .withExternal().source(BookingState.PENDING_EXTENSION).target(BookingState.ACTIVE).event(BookingEvent.EXTENSION_CONFIRMED)
                 .and()
                 .withExternal().source(BookingState.COMPLETED).target(BookingState.PAID).event(BookingEvent.PAYMENT_SUCCESSFUL);
+    }
+
+    @Override
+    public void configure(StateMachineConfigurationConfigurer<BookingState, BookingEvent> config) throws Exception {
+        StateMachineListenerAdapter<BookingState, BookingEvent> adapter = new StateMachineListenerAdapter<>() {
+            @Override
+            public void stateChanged(State<BookingState, BookingEvent> from, State<BookingState, BookingEvent> to) {
+                log.info("stateChange from: {} to {}", from.getId().toString(), to.getId().toString());
+            }
+        };
+        config.withConfiguration().listener(adapter);
+
     }
 }
