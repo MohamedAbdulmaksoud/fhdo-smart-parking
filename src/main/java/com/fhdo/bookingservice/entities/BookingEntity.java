@@ -2,10 +2,7 @@ package com.fhdo.bookingservice.entities;
 
 import com.fhdo.bookingservice.domain.BookingState;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -13,12 +10,13 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
-@Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "booking")
+@Table(name = "booking", schema = "shared")
 public class BookingEntity {
 
     @Id
