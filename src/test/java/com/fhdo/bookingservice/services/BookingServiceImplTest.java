@@ -42,4 +42,13 @@ class BookingServiceImplTest {
         BookingEntity cancelledBooking = bookingRepository.getReferenceById(booking.getBookingId());
         Assertions.assertEquals(BookingState.CANCELLED, cancelledBooking.getState());
     }
+
+    @Test
+    @Transactional
+    void confirm(){
+        BookingEntity booking = bookingService.newBooking(bookingEntity);
+        bookingService.confirm(booking.getBookingId());
+        BookingEntity confirmedBooking = bookingRepository.getReferenceById(booking.getBookingId());
+        Assertions.assertEquals(BookingState.CONFIRMED, confirmedBooking.getState());
+    }
 }
