@@ -12,7 +12,7 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import reactor.core.publisher.Mono;
 
 @SpringBootTest
-class StateMachineConfigTest {
+class BookingStateMachineConfigTest {
 
     @Autowired
     StateMachineFactory<BookingState, BookingEvent> factory;
