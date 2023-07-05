@@ -1,6 +1,7 @@
 package com.fhdo.bookingservice.domain;
 
 public enum BookingEvent {
+    CONFIRMATION_PENDING,
     CONFIRMATION_APPROVED,
     CONFIRMATION_DECLINED,
     VEHICLE_PARKED,
