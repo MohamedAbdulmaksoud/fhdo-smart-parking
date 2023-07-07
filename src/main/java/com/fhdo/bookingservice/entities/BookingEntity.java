@@ -6,7 +6,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,14 +35,16 @@ public class BookingEntity {
 
     private UUID parkingSpotId;
 
+    private UUID vehicleId;
+
     @OneToMany(mappedBy = "booking")
     private Set<BookingExtensionEntity> bookingExtensions;
 
     // TODO: 24.06.23: Parking violations to be imported from another service
 
-    private LocalDateTime startTime;
+    private OffsetDateTime startTime;
 
-    private LocalDateTime endTime;
+    private OffsetDateTime endTime;
 
     @Transient
     private Duration bookingDuration;
