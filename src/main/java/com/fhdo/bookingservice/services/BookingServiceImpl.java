@@ -2,6 +2,7 @@ package com.fhdo.bookingservice.services;
 
 import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
+import com.fhdo.bookingservice.domain.request.BookingRequest;
 import com.fhdo.bookingservice.entities.BookingEntity;
 import com.fhdo.bookingservice.repository.BookingRepository;
 import jakarta.transaction.Transactional;
@@ -33,27 +34,45 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public StateMachine<BookingState, BookingEvent> confirm(UUID bookingId) {
-        StateMachine<BookingState, BookingEvent> sm = build(bookingId);
-        sendEvent(bookingId, sm, BookingEvent.CONFIRMATION_APPROVED);
-        return sm;
+    public void validate(BookingRequest request) {
+        sendEventWithRequest(request.getBookingId(), BookingEvent.CHECK_VALIDITY, request);
     }
 
     @Override
     @Transactional
-    public StateMachine<BookingState, BookingEvent> cancel(UUID bookingId) {
-        StateMachine<BookingState, BookingEvent> sm = build(bookingId);
-        sendEvent(bookingId, sm, BookingEvent.BOOKING_CANCELLED);
-        return sm;
+    public void cancel(UUID bookingId) {
+        sendEvent(bookingId, BookingEvent.BOOKING_CANCELLED);
     }
 
-    private void sendEvent(UUID bookingId, StateMachine<BookingState, BookingEvent> sm, BookingEvent event) {
+    @Override
+    public void processConfirmationResult(UUID bookingId, Boolean isConfirmed) {
+        if (isConfirmed) {
+            sendEvent(bookingId, BookingEvent.BOOKING_CONFIRMED);
+        } else {
+            sendEvent(bookingId, BookingEvent.BOOKING_FAILED);
+        }
+    }
+
+    private void sendEvent(UUID bookingId, BookingEvent event) {
+        StateMachine<BookingState, BookingEvent> sm = build(bookingId);
         Message<BookingEvent> msg = MessageBuilder.withPayload(event)
                 .setHeader(BOOKING_ID_HEADER, bookingId)
                 .build();
 
         sm.sendEvent(Mono.just(msg)).subscribe();
+
     }
+
+    private void sendEventWithRequest(UUID bookingId, BookingEvent bookingEvent, BookingRequest request) {
+        StateMachine<BookingState, BookingEvent> sm = build(bookingId);
+        Message<BookingEvent> msg = MessageBuilder.withPayload(bookingEvent)
+                .setHeader(BOOKING_ID_HEADER, bookingId)
+                .setHeader(request.getHeader(),request)
+                .build();
+
+        sm.sendEvent(Mono.just(msg)).subscribe();
+    }
+
     /*
      * Build and populate a state machine from database entity
      * */

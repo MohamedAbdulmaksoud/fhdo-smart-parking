@@ -1,6 +1,7 @@
 package com.fhdo.bookingservice.services;
 
 import com.fhdo.bookingservice.domain.BookingState;
+import com.fhdo.bookingservice.domain.request.BookingConfirmationRequest;
 import com.fhdo.bookingservice.entities.BookingEntity;
 import com.fhdo.bookingservice.repository.BookingRepository;
 import jakarta.transaction.Transactional;
@@ -11,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @SpringBootTest
@@ -28,7 +29,7 @@ class BookingServiceImplTest {
     @BeforeEach
     void setUp() {
         bookingEntity = BookingEntity.builder()
-                .startTime(LocalDateTime.now())
+                .startTime(OffsetDateTime.now())
                 .bookingDuration(Duration.ofHours(1L))
                 .userId(UUID.randomUUID())
                 .build();
@@ -45,10 +46,19 @@ class BookingServiceImplTest {
 
     @Test
     @Transactional
-    void confirm(){
+    void validate() {
         BookingEntity booking = bookingService.newBooking(bookingEntity);
-        bookingService.confirm(booking.getBookingId());
-        BookingEntity confirmedBooking = bookingRepository.getReferenceById(booking.getBookingId());
-        Assertions.assertEquals(BookingState.CONFIRMED, confirmedBooking.getState());
+        BookingConfirmationRequest request = BookingConfirmationRequest.builder()
+                .bookingId(booking.getBookingId())
+                .userId(booking.getUserId())
+                .parkingLotId(UUID.randomUUID())
+                .startTime(OffsetDateTime.now())
+                .endTime(OffsetDateTime.now().plusMinutes(30))
+                .build();
+
+        bookingService.validate(request);
+        BookingEntity pendingBooking = bookingRepository.getReferenceById(booking.getBookingId());
+        Assertions.assertEquals(BookingState.PENDING_CONFIRMATION, pendingBooking.getState());
+
     }
 }

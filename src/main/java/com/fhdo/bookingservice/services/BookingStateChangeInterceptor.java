@@ -4,7 +4,6 @@ import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
 import com.fhdo.bookingservice.entities.BookingEntity;
 import com.fhdo.bookingservice.repository.BookingRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateMachine;
@@ -23,11 +22,10 @@ public class BookingStateChangeInterceptor extends StateMachineInterceptorAdapte
     private final BookingRepository bookingRepository;
 
     /*
-     * Update entity state based on new event
+     * Persist state change in database
      * */
     @Override
-    @Transactional
-    public void preStateChange(State<BookingState, BookingEvent> state, Message<BookingEvent> message, Transition<BookingState, BookingEvent> transition, StateMachine<BookingState, BookingEvent> stateMachine, StateMachine<BookingState, BookingEvent> rootStateMachine) {
+    public void postStateChange(State<BookingState, BookingEvent> state, Message<BookingEvent> message, Transition<BookingState, BookingEvent> transition, StateMachine<BookingState, BookingEvent> stateMachine, StateMachine<BookingState, BookingEvent> rootStateMachine) {
         Optional.ofNullable(message).flatMap(msg -> Optional.ofNullable((UUID) msg.getHeaders().getOrDefault(BookingServiceImpl.BOOKING_ID_HEADER, -1L))).ifPresent(bookingId -> {
             BookingEntity booking = bookingRepository.getReferenceById(bookingId);
             booking.setState(state.getId());

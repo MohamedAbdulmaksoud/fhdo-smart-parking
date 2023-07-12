@@ -1,4 +1,4 @@
-package com.fhdo.bookingservice.dtos;
+package com.fhdo.bookingservice.domain.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,19 +9,25 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-/**
- * DTO for {@link com.fhdo.bookingservice.entities.BookingEntity}
- */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingValidationRequest implements Serializable {
+public class BookingConfirmationRequest implements BookingRequest, Serializable {
 
-    static final long serialVersionUID = 3870498450574080649L;
+    public static final String HEADER_NAME = "confirmation_request";
+
+    static final long serialVersionUID = -7142764179621490243L;
+
     private UUID bookingId;
     private UUID userId;
     private UUID parkingLotId;
+    private UUID parkingSpotId;
     private OffsetDateTime startTime;
     private OffsetDateTime endTime;
+
+    @Override
+    public String getHeader() {
+        return HEADER_NAME;
+    }
 }

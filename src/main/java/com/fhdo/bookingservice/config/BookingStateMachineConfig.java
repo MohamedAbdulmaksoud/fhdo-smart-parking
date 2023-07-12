@@ -2,6 +2,9 @@ package com.fhdo.bookingservice.config;
 
 import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
+import com.fhdo.bookingservice.domain.request.BookingConfirmationRequest;
+import com.fhdo.bookingservice.domain.sm.actions.ConfirmBookingAction;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
@@ -17,16 +20,19 @@ import java.util.EnumSet;
 * https://docs.spring.io/spring-statemachine/docs/3.2.x/reference/#sm-config
 * */
 @Slf4j
+@RequiredArgsConstructor
 @EnableStateMachineFactory
 @Configuration
 public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter<BookingState, BookingEvent> {
+
+    private final ConfirmBookingAction confirmBookingAction;
     @Override
     public void configure(StateMachineStateConfigurer<BookingState, BookingEvent> states) throws Exception {
         states.withStates()
                 .initial(BookingState.NEW)
                 .states(EnumSet.allOf(BookingState.class))
                 .end(BookingState.CANCELLED)
-                .end(BookingState.PAID);
+                .end(BookingState.COMPLETED);
     }
 
     @Override
@@ -34,14 +40,30 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
         transitions
                 .withExternal()
                 .source(BookingState.NEW)
-                .target(BookingState.CONFIRMED)
-                .event(BookingEvent.CONFIRMATION_APPROVED)
+                .target(BookingState.PENDING_CONFIRMATION)
+                .event(BookingEvent.CHECK_VALIDITY)
+                .guard((stateContext -> stateContext.getMessageHeaders().containsKey(BookingConfirmationRequest.HEADER_NAME)))
+                .action(confirmBookingAction)
                 .and()
 
                 .withExternal()
-                .source(BookingState.NEW)
+                .source(BookingState.PENDING_CONFIRMATION)
+                .target(BookingState.PENDING_CONFIRMATION)
+                .event(BookingEvent.BOOK_PARKING_SLOT)
+                .guard((stateContext -> stateContext.getMessageHeaders().containsKey(BookingConfirmationRequest.HEADER_NAME)))
+                .action(confirmBookingAction)
+                .and()
+
+                .withExternal()
+                .source(BookingState.PENDING_CONFIRMATION)
+                .target(BookingState.CONFIRMED)
+                .event(BookingEvent.BOOKING_CONFIRMED)
+                .and()
+
+                .withExternal()
+                .source(BookingState.PENDING_CONFIRMATION)
                 .target(BookingState.DECLINED)
-                .event(BookingEvent.CONFIRMATION_DECLINED)
+                .event(BookingEvent.BOOKING_FAILED)
                 .and()
 
                 .withExternal()
@@ -83,13 +105,7 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
                 .withExternal()
                 .source(BookingState.PENDING_EXTENSION)
                 .target(BookingState.ACTIVE)
-                .event(BookingEvent.EXTENSION_CONFIRMED)
-                .and()
-
-                .withExternal()
-                .source(BookingState.COMPLETED)
-                .target(BookingState.PAID)
-                .event(BookingEvent.PAYMENT_SUCCESSFUL);
+                .event(BookingEvent.EXTENSION_CONFIRMED);
     }
 
     @Override

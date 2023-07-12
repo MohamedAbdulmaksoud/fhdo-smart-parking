@@ -22,7 +22,7 @@ class BookingStateMachineConfigTest {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
         sm.startReactively().subscribe();
         sm.sendEvent(Mono.just(MessageBuilder
-                .withPayload(BookingEvent.CONFIRMATION_APPROVED)
+                .withPayload(BookingEvent.BOOKING_CONFIRMED)
                 .build()))
                 .subscribe();
         Assertions.assertEquals(BookingState.CONFIRMED, sm.getState().getId());
