@@ -29,6 +29,7 @@
         <java.version>17</java.version>
         <statemachine.version>3.2.1</statemachine.version>
         <spring-jms.version>6.0.10</spring-jms.version>
+        <spring-eureka-client.version>4.0.2</spring-eureka-client.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <lombok.version>1.18.28</lombok.version>
     </properties>
@@ -63,6 +64,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
             <version>${spring-jms.version}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-netflix-eureka-client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <version>${spring-eureka-client.version}</version>
         </dependency>
 
         <dependency>
