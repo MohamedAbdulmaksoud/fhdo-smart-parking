@@ -29,6 +29,7 @@
         <java.version>17</java.version>
         <statemachine.version>3.2.1</statemachine.version>
         <spring-eureka-client.version>4.0.2</spring-eureka-client.version>
+        <spring-openfeign.version>4.0.2</spring-openfeign.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <lombok.version>1.18.28</lombok.version>
     </properties>
@@ -68,7 +69,12 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
             <version>${spring-eureka-client.version}</version>
         </dependency>
-
+        <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-openfeign -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>${spring-openfeign.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-docker-compose</artifactId>
