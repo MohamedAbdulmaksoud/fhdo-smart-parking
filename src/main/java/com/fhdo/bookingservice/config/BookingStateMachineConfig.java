@@ -16,6 +16,8 @@ import org.springframework.statemachine.listener.StateMachineListenerAdapter;
 import org.springframework.statemachine.state.State;
 
 import java.util.EnumSet;
+import java.util.Optional;
+
 /*
 * https://docs.spring.io/spring-statemachine/docs/3.2.x/reference/#sm-config
 * */
@@ -113,7 +115,9 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
         StateMachineListenerAdapter<BookingState, BookingEvent> adapter = new StateMachineListenerAdapter<>() {
             @Override
             public void stateChanged(State<BookingState, BookingEvent> from, State<BookingState, BookingEvent> to) {
-                log.info("stateChange from: {} to {}", from.getId().toString(), to.getId().toString());
+                Optional.ofNullable(from).ifPresent((sm) ->
+                        log.info("stateChange from: {} to {}", from.getId().toString(), to.getId().toString())
+                );
             }
         };
         config.withConfiguration().listener(adapter);
