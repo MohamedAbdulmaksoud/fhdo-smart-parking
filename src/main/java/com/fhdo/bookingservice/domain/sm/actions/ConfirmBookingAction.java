@@ -1,11 +1,12 @@
 package com.fhdo.bookingservice.domain.sm.actions;
 
+import com.fhdo.bookingservice.config.RabbitMqConfiguration;
 import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
 import com.fhdo.bookingservice.domain.request.BookingConfirmationRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.jms.core.JmsTemplate;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
@@ -18,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ConfirmBookingAction implements Action<BookingState, BookingEvent> {
 
-    private final JmsTemplate jmsTemplate;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     public void execute(StateContext<BookingState, BookingEvent> stateContext) {
@@ -29,7 +30,7 @@ public class ConfirmBookingAction implements Action<BookingState, BookingEvent> 
                 .orElseThrow(() -> new RuntimeException("Could not extract confirmation request from headers"));
 
         // TODO: 07.07.23: Configure JMS and catch JMS exception
-        //  jmsTemplate.convertAndSend(JmsConfig.CONFIRM_ORDER_QUEUE, request);
+        rabbitTemplate.convertAndSend(RabbitMqConfiguration.CONFIRM_ORDER_QUEUE, request);
 
         log.debug("Sent confirmation request to queue for booking id {}", request.getBookingId());
     }
