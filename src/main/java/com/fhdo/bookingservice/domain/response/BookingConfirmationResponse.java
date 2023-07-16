@@ -1,15 +1,26 @@
 package com.fhdo.bookingservice.domain.response;
 
-import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public record BookingConfirmationResponse(@NotNull UUID bookingId,
-                                          @NotNull UUID parkingLotId,
-                                          @NotNull UUID parkingSpotId,
-                                          @NotNull UUID vehicleId,
-                                          @NotNull OffsetDateTime startTime,
-                                          @NotNull OffsetDateTime endTime,
-                                          @NotNull Boolean isConfirmed) {
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public final class BookingConfirmationResponse extends BookingBaseResponse {
+
+    private UUID parkingLotId;
+
+    private UUID parkingSpotId;
+
+    private UUID vehicleId;
+
+    private OffsetDateTime startTime;
+
+    private OffsetDateTime endTime;
+
+    private Boolean isConfirmed;
+
 }
