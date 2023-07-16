@@ -1,3 +1,5 @@
+server:
+    port: 8081
 spring:
     application:
         name: booking-service
@@ -5,20 +7,16 @@ spring:
         password: password
         url: jdbc:postgresql://localhost:5432/booking
         username: user
-
     docker:
         compose:
             enabled: false
-
     flyway:
         create-schemas: true
         schemas: shared
-
     jackson:
         deserialization:
             accept-empty-array-as-null-object: true
             accept-empty-string-as-null-object: true
-
     jpa:
         hibernate:
             ddl-auto: none
@@ -29,11 +27,8 @@ spring:
                 jdbc:
                     time_zone: UTC
         show-sql: false
-
     rabbitmq:
         host: localhost
         password: password
         port: 5672
         username: user
-server:
-    port: 8081
