@@ -6,14 +6,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-@Profile("!local-discovery")
+@Profile("local-discovery")
 @Configuration
-public class RouteConfiguration {
-
+public class LoadBalancedRoutesConfig {
     @Bean
-    public RouteLocator routeLocator(RouteLocatorBuilder builder){
+    public RouteLocator loadBalancedRoutes(RouteLocatorBuilder builder){
         return builder.routes()
-                .route(r -> r.path("/api/v1/booking/*").uri("http://localhost:8081"))
+                .route(r -> r.path("/api/v1/booking/*").uri("lb://booking-service"))
                 .build();
     }
 }
