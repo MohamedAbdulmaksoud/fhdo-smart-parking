@@ -1,8 +1,8 @@
 server:
     port: 8081
 spring:
-    application:
-        name: booking-service
+#    application:
+#        name: booking-service
     datasource:
         password: password
         url: jdbc:postgresql://localhost:5432/booking
