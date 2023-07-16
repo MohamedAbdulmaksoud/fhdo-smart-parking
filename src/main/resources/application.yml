@@ -1,2 +1,12 @@
-{
-    }
+server:
+    port: 8888
+spring:
+    application:
+        name: config-server
+    cloud:
+        config:
+            server:
+                git:
+                    uri: https://github.com/MohamedAbdulmaksoud/cloud-config-repo
+                    search-paths: '{application}'
+                    clone-on-start: true
