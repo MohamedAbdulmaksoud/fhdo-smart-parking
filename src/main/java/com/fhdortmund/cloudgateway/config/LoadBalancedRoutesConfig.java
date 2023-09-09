@@ -13,6 +13,8 @@ public class LoadBalancedRoutesConfig {
     public RouteLocator loadBalancedRoutes(RouteLocatorBuilder builder){
         return builder.routes()
                 .route(r -> r.path("/api/v1/booking/*").uri("lb://booking-service"))
+                .route(r -> r.path("/api/v1/vehicle-registration/*").uri("lb://vehicle-registration-service"))
+                .route(r -> r.path("/api/v1/parking-lots/*").uri("lb://parking-service"))
                 .build();
     }
 }
