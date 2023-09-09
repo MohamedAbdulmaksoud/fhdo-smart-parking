@@ -3,6 +3,13 @@ server:
 spring:
   application:
     name: parking-service
+  cloud:
+    discovery:
+      enabled: false
+  datasource:
+    password: password
+    url: jdbc:postgresql://localhost:5432/parking
+    username: user
   flyway:
     create-schemas: true
     schemas: shared
@@ -15,8 +22,8 @@ spring:
       ddl-auto: none
       naming:
         physical-strategy: com.vladmihalcea.hibernate.type.util.CamelCaseToSnakeCaseNamingStrategy
+    show-sql: false
     properties:
       hibernate:
         jdbc:
           time_zone: UTC
-    show-sql: false
