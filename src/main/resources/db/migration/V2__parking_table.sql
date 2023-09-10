@@ -26,12 +26,12 @@ CREATE TABLE parking_space
     parking_id        UUID NOT NULL,
     internal_id       INTEGER,
     is_occupied       BOOLEAN,
-    parking_spot_type INTEGER,
+    parking_spot_type TEXT,
     CONSTRAINT pk_parking_space PRIMARY KEY (parking_space_id)
 );
 
 ALTER TABLE parking_lot
-    ADD CONSTRAINT uc_parking_lot_placeid UNIQUE (place_id);
+    ADD CONSTRAINT uc_parking_lot_placeid UNIQUE (parking_id, place_id);
 
 ALTER TABLE parking_space
     ADD CONSTRAINT uc_parking_space_internalid UNIQUE (internal_id);
