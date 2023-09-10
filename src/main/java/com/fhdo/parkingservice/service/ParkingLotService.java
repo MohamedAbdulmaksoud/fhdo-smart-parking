@@ -12,11 +12,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ParkingLotService {
 
-    private final ParkingLotRepository parkingLotRepository;
+    private final ParkingLotRepository repository;
 
     private final MapStructMapper mapper;
 
     public List<NearbyParkingResponse> findNearbyParking(double longitude, double latitude, double distanceInMeters) {
-        return mapper.parkingLotEntityListToNearbyParkingResponseList(parkingLotRepository.findNearbyParking(longitude, latitude, distanceInMeters));
+        return mapper.parkingLotEntityListToNearbyParkingResponseList(repository.findNearbyParking(longitude, latitude, distanceInMeters));
     }
 }

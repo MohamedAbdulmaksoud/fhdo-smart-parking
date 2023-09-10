@@ -1,7 +1,6 @@
 package com.fhdo.parkingservice.model.dtos;
 
 import com.fhdo.parkingservice.entities.Address;
-import com.fhdo.parkingservice.model.ParkingSpotType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -18,9 +17,9 @@ public class NearbyParkingResponse {
 
     private Integer totalCapacity;
 
-    private Map<ParkingSpotType, BigDecimal> parkingHourlyRate;
+    private Map<String, BigDecimal> hourlyRates;
 
-    private Double distanceInMeters;
+    private Double distance;
 
     private Boolean isOpen;
 

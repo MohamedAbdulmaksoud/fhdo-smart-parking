@@ -1,12 +1,13 @@
 package com.fhdo.parkingservice.entities;
 
 import com.fhdo.parkingservice.model.ParkingLotOnwershipType;
-import com.fhdo.parkingservice.model.ParkingSpotType;
+import com.vladmihalcea.hibernate.type.basic.PostgreSQLHStoreType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
@@ -15,12 +16,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "parking_lot", schema = "shared")
+
+@SqlResultSetMapping(
+        name = "ParkingLotEntityMapping",
+        entities = @EntityResult(
+                entityClass = ParkingLotEntity.class,
+                fields = {
+                        @FieldResult(name = "parkingId", column = "parking_id"),
+                        @FieldResult(name = "placeId", column = "place_id"),
+                        @FieldResult(name = "fullName", column = "full_name"),
+                        @FieldResult(name = "totalCapacity", column = "total_capacity"),
+                        @FieldResult(name = "openingTime", column = "opening_time"),
+                        @FieldResult(name = "closingTime", column = "closing_time"),
+                        @FieldResult(name = "hourlyRates", column = "hourly_rates"),
+                }),
+        columns = @ColumnResult(name = "distance")
+)
 public class ParkingLotEntity {
 
     @Id
@@ -51,14 +69,10 @@ public class ParkingLotEntity {
     @Enumerated(EnumType.STRING)
     private ParkingLotOnwershipType ownershipType;
 
-    @ElementCollection
-    @MapKeyEnumerated(EnumType.STRING)
-    @CollectionTable(name = "parking_lot_hourly_rate", joinColumns = @JoinColumn(name = "parking_id"))
-    @MapKeyColumn(name = "spot_type")
-    @Column(name = "hourly_rate")
-    private Map<ParkingSpotType, BigDecimal> spotPrices = new HashMap<>();
-
+    @Type(PostgreSQLHStoreType.class)
+    @Column(name = "hourly_rates")
+    private Map<String, BigDecimal> hourlyRates = new HashMap<>();
 
     @Transient
-    private Double distanceInMeters;
+    private Double distance;
 }

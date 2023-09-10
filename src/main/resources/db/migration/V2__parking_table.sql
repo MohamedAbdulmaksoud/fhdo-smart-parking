@@ -15,16 +15,9 @@ CREATE TABLE parking_lot
     latitude        DOUBLE PRECISION,
     longitude       DOUBLE PRECISION,
     geo_point       geography(Point, 4326),
+    hourly_rates     HSTORE,
 
     CONSTRAINT pk_parking_lot PRIMARY KEY (parking_id)
-);
-
-CREATE TABLE parking_lot_hourly_rate
-(
-    parking_id UUID    NOT NULL,
-    hourly_rate                   DECIMAL,
-    spot_type                     TEXT NOT NULL,
-    CONSTRAINT pk_parking_lot_hourly_rate PRIMARY KEY (parking_id, spot_type)
 );
 
 CREATE TABLE parking_space
@@ -46,14 +39,14 @@ ALTER TABLE parking_space
 ALTER TABLE parking_space
     ADD CONSTRAINT FK_PARKING_SPACE_ON_PARKING FOREIGN KEY (parking_id) REFERENCES parking_lot (parking_id);
 
-ALTER TABLE parking_lot_hourly_rate
-    ADD CONSTRAINT fk_parking_lot_hourly_rate_on_parking_lot_entity FOREIGN KEY (parking_id) REFERENCES parking_lot (parking_id);
-
 CREATE INDEX idx_geo_point ON parking_lot USING GIST (geo_point);
+
+CREATE INDEX idx_spot_prices ON parking_lot USING GIN(spot_prices);
 
 -- Create a function that calculates the Geography value for the geo_point column based on latitude and longitude
 CREATE OR REPLACE FUNCTION set_geo_point()
-    RETURNS TRIGGER AS $$
+    RETURNS TRIGGER AS
+$$
 BEGIN
     NEW.geo_point := public.st_setsrid(public.st_makepoint((NEW.longitude, NEW.latitude), 4326));
     RETURN NEW;
@@ -62,6 +55,7 @@ $$ LANGUAGE plpgsql;
 
 -- Create a trigger that calls the set_geo_point function before each insert operation on the parking_lot table
 CREATE TRIGGER set_geo_point_trigger
-    BEFORE INSERT ON parking_lot
+    BEFORE INSERT
+    ON parking_lot
     FOR EACH ROW
 EXECUTE FUNCTION set_geo_point();
