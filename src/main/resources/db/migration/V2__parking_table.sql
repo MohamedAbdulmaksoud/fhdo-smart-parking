@@ -41,7 +41,7 @@ ALTER TABLE parking_space
 
 CREATE INDEX idx_geo_point ON parking_lot USING GIST (geo_point);
 
-CREATE INDEX idx_spot_prices ON parking_lot USING GIN(spot_prices);
+CREATE INDEX idx_spot_prices ON parking_lot USING GIN(hourly_rates);
 
 -- Create a function that calculates the Geography value for the geo_point column based on latitude and longitude
 CREATE OR REPLACE FUNCTION set_geo_point()
