@@ -35,6 +35,7 @@ public class ParkingSpaceEntity {
 
     private Boolean isOccupied;
 
+    @Enumerated(EnumType.STRING)
     private ParkingSpotType parkingSpotType;
 
 }
