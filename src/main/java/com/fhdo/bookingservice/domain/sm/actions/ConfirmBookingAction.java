@@ -6,6 +6,7 @@ import com.fhdo.bookingservice.domain.BookingState;
 import com.fhdo.bookingservice.domain.request.BookingConfirmationRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.messaging.Message;
 import org.springframework.statemachine.StateContext;
@@ -30,7 +31,13 @@ public class ConfirmBookingAction implements Action<BookingState, BookingEvent> 
                 .orElseThrow(() -> new RuntimeException("Could not extract confirmation request from headers"));
 
         // TODO: 07.07.23: Configure JMS and catch JMS exception
-        rabbitTemplate.convertAndSend(RabbitMqConfiguration.CONFIRM_ORDER_QUEUE, request);
+
+        try {
+            rabbitTemplate.convertAndSend(RabbitMqConfiguration.CONFIRM_ORDER_QUEUE, request);
+        } catch (AmqpException e) {
+            log.error("Failed to send BookingConfirmationRquest to queue {} for booking id {}", RabbitMqConfiguration.CONFIRM_ORDER_QUEUE, request.getBookingId());
+            throw e;
+        }
 
         log.debug("Sent confirmation request to queue for booking id {}", request.getBookingId());
     }
