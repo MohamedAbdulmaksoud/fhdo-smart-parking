@@ -108,13 +108,13 @@ class BookingStateMachineConfigTest {
 
 
     @Test
-    void testBookingStateTransitionFromNewToCancelled() {
+    void testBookingStateTransitionFromPendingConfirmationToCancelled() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
         BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
 
         // Set the initial state to NEW
         sm.getStateMachineAccessor()
-                .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.NEW, null, null, null)));
+                .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.PENDING_CONFIRMATION, null, null, null)));
         sm.startReactively().subscribe();
 
         Message<BookingEvent> msg = BuilderUtils.eventMessage(request, BookingEvent.BOOKING_CANCELLED);

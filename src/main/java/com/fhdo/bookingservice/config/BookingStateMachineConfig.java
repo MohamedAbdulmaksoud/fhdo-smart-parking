@@ -52,27 +52,28 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
                 .withExternal()
                 .source(BookingState.PENDING_CONFIRMATION)
                 .target(BookingState.CONFIRMED)
-                .event(BookingEvent.BOOKING_CONFIRMED)
+                .event(BookingEvent.BOOKING_CONFIRMED) // TODO: RabbitMQListener for BookingConfirmation from ParkingService 
                 .and()
                 // any exception thrown during confirmBookingAction or received from parking service
                 .withExternal()
                 .source(BookingState.PENDING_CONFIRMATION)
                 .target(BookingState.DECLINED)
-                .event(BookingEvent.BOOKING_FAILED)
+                .event(BookingEvent.BOOKING_FAILED)// TODO: RabbitMQListener for BookingConfirmation from ParkingService
                 .and()
                 // user request to cancel his booking
+                // TODO: Rest endpoint /cancel
                 .withExternal()
-                .source(BookingState.NEW)
+                .source(BookingState.PENDING_CONFIRMATION)
                 .target(BookingState.CANCELLED)
                 .event(BookingEvent.BOOKING_CANCELLED)
                 .and()
-                // receive an event that the reserved parking spot is now occupied
+                // TODO: RabbitMQListener receive an event that the reserved parking spot is now occupied (e.g through SUMO)
                 .withExternal()
                 .source(BookingState.CONFIRMED)
                 .target(BookingState.ACTIVE)
                 .event(BookingEvent.VEHICLE_PARKED)
                 .and()
-                // user cancels his booking
+                // TODO: Rest endpoint /cancel
                 .withExternal()
                 .source(BookingState.CONFIRMED)
                 .target(BookingState.CANCELLED)
@@ -84,7 +85,7 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
                 .target(BookingState.OVERSTAY)
                 .event(BookingEvent.OVERSTAY_OCCURRED)
                 .and()
-                // when parking spot isOccupied -> available. If overstay, calculate penalties
+                // TODO: RabbitMQListener receive an event that the reserved parking spot is now available (e.g through SUMO). If overstay, calculate penalties
                 .withExternal()
                 .source(BookingState.ACTIVE)
                 .target(BookingState.COMPLETED)
