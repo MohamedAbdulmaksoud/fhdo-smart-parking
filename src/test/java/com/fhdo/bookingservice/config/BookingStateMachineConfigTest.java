@@ -47,7 +47,7 @@ class BookingStateMachineConfigTest {
 
         sm.startReactively().subscribe();
 
-        Message<BookingEvent> msg = MessageBuilder.withPayload(BookingEvent.CHECK_VALIDITY)
+        Message<BookingEvent> msg = MessageBuilder.withPayload(BookingEvent.BOOK_PARKING_SLOT)
                 .setHeader("booking_id", request.getBookingId())
                 .setHeader(request.getHeader(), request)
                 .build();
@@ -173,22 +173,6 @@ class BookingStateMachineConfigTest {
 
 
     @Test
-    void testBookingStateTransitionFromActiveToPendingExtension() {
-        StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
-
-        sm.getStateMachineAccessor()
-                .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.ACTIVE, null, null, null)));
-        sm.startReactively().subscribe();
-
-        Message<BookingEvent> msg = BuilderUtils.eventMessage(request, BookingEvent.EXTENSION_REQUESTED);
-
-        sm.sendEvent(Mono.just(msg)).subscribe();
-        Assertions.assertEquals(BookingState.PENDING_EXTENSION, sm.getState().getId());
-    }
-
-
-    @Test
     void testBookingStateTransitionFromActiveToCompleted() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
         BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
@@ -202,22 +186,5 @@ class BookingStateMachineConfigTest {
         sm.sendEvent(Mono.just(msg)).subscribe();
         Assertions.assertEquals(BookingState.COMPLETED, sm.getState().getId());
     }
-
-
-    @Test
-    void testBookingStateTransitionFromPendingExtensionToActive() {
-        StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
-
-        sm.getStateMachineAccessor()
-                .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.PENDING_EXTENSION, null, null, null)));
-        sm.startReactively().subscribe();
-
-        Message<BookingEvent> msg = BuilderUtils.eventMessage(request, BookingEvent.EXTENSION_CONFIRMED);
-
-        sm.sendEvent(Mono.just(msg)).subscribe();
-        Assertions.assertEquals(BookingState.ACTIVE, sm.getState().getId());
-    }
-
 
 }

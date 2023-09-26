@@ -12,7 +12,6 @@ package com.fhdo.bookingservice.domain;
  *   <li>{@link BookingState#CONFIRMED}: The booking has been successfully confirmed with parking service.</li>
  *   <li>{@link BookingState#DECLINED}: The booking failed to get confirmation with parking service, the user has to request new booking</li>
  *   <li>{@link BookingState#ACTIVE}: The booking is currently active, and the user has parked their vehicle.</li>
- *   <li>{@link BookingState#PENDING_EXTENSION}: The user has requested to extend the booking duration, and it is pending approval.</li>
  *   <li>{@link BookingState#OVERSTAY}: The user has exceeded the allowed booking duration, and additional charges or penalties may apply.</li>
  *   <li>{@link BookingState#COMPLETED}: The booking has been successfully completed, and the user has left the parking spot.</li>
  *   <li>{@link BookingState#CANCELLED}: The booking has been canceled by the user or the system.</li>
@@ -20,12 +19,11 @@ package com.fhdo.bookingservice.domain;
  */
 public enum BookingState {
     NEW,
-    PENDING_CONFIRMATION,
+    PENDING_CONFIRMATION, // Sending the reservation message to the parking service to set isReserved on a parkingSpot to true
     CONFIRMED,
-    DECLINED,
-    ACTIVE,
-    PENDING_EXTENSION,
-    OVERSTAY,
+    DECLINED,            // If a parking spot has an existing booking
+    ACTIVE,             // parking spot has ongoing booking and parking spot is occupied
+    OVERSTAY,           // Booking exceeding end time without leaving parking spot
     COMPLETED,
     CANCELLED
 }

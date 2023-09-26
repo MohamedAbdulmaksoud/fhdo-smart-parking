@@ -40,74 +40,55 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
     @Override
     public void configure(StateMachineTransitionConfigurer<BookingState, BookingEvent> transitions) throws Exception {
         transitions
+                // user chooses a parking lot to book a parking slot
                 .withExternal()
                 .source(BookingState.NEW)
-                .target(BookingState.PENDING_CONFIRMATION)
-                .event(BookingEvent.CHECK_VALIDITY)
-                .guard((stateContext -> stateContext.getMessageHeaders().containsKey(BookingConfirmationRequest.HEADER_NAME)))
-                .action(confirmBookingAction)
-                .and()
-
-                .withExternal()
-                .source(BookingState.PENDING_CONFIRMATION)
                 .target(BookingState.PENDING_CONFIRMATION)
                 .event(BookingEvent.BOOK_PARKING_SLOT)
                 .guard((stateContext -> stateContext.getMessageHeaders().containsKey(BookingConfirmationRequest.HEADER_NAME)))
                 .action(confirmBookingAction)
                 .and()
-
+                // parking service successfully reserves the parking slot
                 .withExternal()
                 .source(BookingState.PENDING_CONFIRMATION)
                 .target(BookingState.CONFIRMED)
                 .event(BookingEvent.BOOKING_CONFIRMED)
                 .and()
-
+                // any exception thrown during confirmBookingAction or received from parking service
                 .withExternal()
                 .source(BookingState.PENDING_CONFIRMATION)
                 .target(BookingState.DECLINED)
                 .event(BookingEvent.BOOKING_FAILED)
                 .and()
-
+                // user request to cancel his booking
                 .withExternal()
                 .source(BookingState.NEW)
                 .target(BookingState.CANCELLED)
                 .event(BookingEvent.BOOKING_CANCELLED)
                 .and()
-
+                // receive an event that the reserved parking spot is now occupied
                 .withExternal()
                 .source(BookingState.CONFIRMED)
                 .target(BookingState.ACTIVE)
                 .event(BookingEvent.VEHICLE_PARKED)
                 .and()
-
+                // user cancels his booking
                 .withExternal()
                 .source(BookingState.CONFIRMED)
                 .target(BookingState.CANCELLED)
                 .event(BookingEvent.BOOKING_CANCELLED)
                 .and()
-
+                // active booking (parking spot still occupied) exceeds allocated time
                 .withExternal()
                 .source(BookingState.ACTIVE)
                 .target(BookingState.OVERSTAY)
                 .event(BookingEvent.OVERSTAY_OCCURRED)
                 .and()
-
-                .withExternal()
-                .source(BookingState.ACTIVE)
-                .target(BookingState.PENDING_EXTENSION)
-                .event(BookingEvent.EXTENSION_REQUESTED)
-                .and()
-
+                // when parking spot isOccupied -> available. If overstay, calculate penalties
                 .withExternal()
                 .source(BookingState.ACTIVE)
                 .target(BookingState.COMPLETED)
-                .event(BookingEvent.BOOKING_COMPLETED)
-                .and()
-
-                .withExternal()
-                .source(BookingState.PENDING_EXTENSION)
-                .target(BookingState.ACTIVE)
-                .event(BookingEvent.EXTENSION_CONFIRMED);
+                .event(BookingEvent.BOOKING_COMPLETED);
     }
 
     @Override
