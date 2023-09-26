@@ -4,6 +4,7 @@ import com.fhdo.bookingservice.config.RabbitMqConfiguration;
 import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
 import com.fhdo.bookingservice.domain.request.BookingConfirmationRequest;
+import com.fhdo.bookingservice.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
@@ -22,6 +23,8 @@ public class ConfirmBookingAction implements Action<BookingState, BookingEvent> 
 
     private final RabbitTemplate rabbitTemplate;
 
+    private final BookingRepository repository;
+
     @Override
     public void execute(StateContext<BookingState, BookingEvent> stateContext) {
         BookingConfirmationRequest request = Optional.ofNullable(stateContext)
@@ -30,12 +33,16 @@ public class ConfirmBookingAction implements Action<BookingState, BookingEvent> 
                 .map(messageHeaders -> messageHeaders.get(BookingConfirmationRequest.HEADER_NAME, BookingConfirmationRequest.class))
                 .orElseThrow(() -> new RuntimeException("Could not extract confirmation request from headers"));
 
-        // TODO: 07.07.23: Configure JMS and catch JMS exception
+        //check if an active booking already exists -> return
+
+        //confirm booking: set to RESERVED. ACTIVE is based on listener receiving OCCUPIED message from the Parking Spot Queue.
+
+        //build the response and send over the message queue to the parking system to reserve and user service to notify.
 
         try {
-            rabbitTemplate.convertAndSend(RabbitMqConfiguration.CONFIRM_ORDER_QUEUE, request);
+            rabbitTemplate.convertAndSend(RabbitMqConfiguration.CONFIRM_BOOKING_QUEUE, request);
         } catch (AmqpException e) {
-            log.error("Failed to send BookingConfirmationRquest to queue {} for booking id {}", RabbitMqConfiguration.CONFIRM_ORDER_QUEUE, request.getBookingId());
+            log.error("Failed to send BookingConfirmationRquest to queue {} for booking id {}", RabbitMqConfiguration.CONFIRM_BOOKING_QUEUE, request.getBookingId());
             throw e;
         }
 

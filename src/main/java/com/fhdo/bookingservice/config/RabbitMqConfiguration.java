@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableRabbit
 public class RabbitMqConfiguration {
 
-    public static final String CONFIRM_ORDER_QUEUE = "order.confirm.request";
-    public static final String CONFIRM_ORDER_RESPONSE_QUEUE = "order.confirm.response";
+    public static final String CONFIRM_BOOKING_QUEUE = "booking.confirm.request";
+    public static final String CONFIRM_BOOKING_RESPONSE_QUEUE = "order.confirm.response";
 
 
 
@@ -33,11 +33,11 @@ public class RabbitMqConfiguration {
 
     @Bean
     public Queue confirmOrderQueue(){
-        return new Queue(CONFIRM_ORDER_QUEUE);
+        return new Queue(CONFIRM_BOOKING_QUEUE);
     }
 
     @Bean
     public Queue confirmOrderResponse(){
-        return new Queue(CONFIRM_ORDER_RESPONSE_QUEUE);
+        return new Queue(CONFIRM_BOOKING_RESPONSE_QUEUE);
     }
 }

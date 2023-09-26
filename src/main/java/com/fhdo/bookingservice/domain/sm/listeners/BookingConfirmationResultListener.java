@@ -14,7 +14,7 @@ import java.util.UUID;
 public class BookingConfirmationResultListener {
 
     private final BookingService bookingService;
-    @RabbitListener(queues = RabbitMqConfiguration.CONFIRM_ORDER_RESPONSE_QUEUE)
+    @RabbitListener(queues = RabbitMqConfiguration.CONFIRM_BOOKING_RESPONSE_QUEUE)
     public void listen(BookingConfirmationResponse result){
         final UUID bookingId = result.getBookingId();
         bookingService.processConfirmationResult(bookingId, result.getIsConfirmed());
