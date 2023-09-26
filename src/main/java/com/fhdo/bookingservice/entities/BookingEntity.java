@@ -30,7 +30,12 @@ public class BookingEntity {
     @Column(nullable = false, updatable = false)
     private UUID userId;
 
+    @Column(name = "parking_id", nullable = false, updatable = false, insertable = false)
     private UUID parkingLotId;
+
+    @ManyToOne
+    @JoinColumn(name = "parking_id", nullable = false, updatable = false)
+    private ParkingLotEntity parkingLot;
 
     private UUID parkingSpotId;
 
