@@ -16,7 +16,7 @@ public class ParkingSpaceService {
 
     public AvailableParkingSpacesResponse getAvailableSpaces(String parkingId) {
         List<ParkingSpotCount> spotCounts = repository.getAvailableSpaces(parkingId);
-        final var sum = (Long) spotCounts.stream().map(ParkingSpotCount::getAvailableSpots).mapToLong(Long::intValue).sum();
-        return new AvailableParkingSpacesResponse(parkingId, sum, spotCounts);
+        List<Integer> internalIds = repository.findByIsReservedFalseAndIsOccupiedFalse(parkingId);
+        return new AvailableParkingSpacesResponse(parkingId, internalIds.size(), spotCounts, internalIds);
     }
 }

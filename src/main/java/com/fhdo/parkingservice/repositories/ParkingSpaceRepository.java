@@ -19,4 +19,7 @@ public interface ParkingSpaceRepository extends JpaRepository<ParkingSpaceEntity
     """)
     List<ParkingSpotCount> getAvailableSpaces(String parkingId);
 
+    @Query("select p.internalId from ParkingSpaceEntity p where p.parkingSpace.placeId = :parkingId and p.isReserved = false and p.isOccupied = false")
+    List<Integer> findByIsReservedFalseAndIsOccupiedFalse(String parkingId);
+
 }
