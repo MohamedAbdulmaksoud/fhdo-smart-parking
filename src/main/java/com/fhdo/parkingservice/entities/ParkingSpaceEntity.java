@@ -32,6 +32,7 @@ public class ParkingSpaceEntity {
     @Column(unique = true)
     private Integer internalId;
 
+    private Boolean isReserved;
 
     private Boolean isOccupied;
 

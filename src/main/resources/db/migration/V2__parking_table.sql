@@ -25,6 +25,7 @@ CREATE TABLE parking_space
     parking_space_id  UUID NOT NULL,
     parking_id        UUID NOT NULL,
     internal_id       INTEGER,
+    is_reserved       BOOLEAN,
     is_occupied       BOOLEAN,
     parking_spot_type TEXT,
     CONSTRAINT pk_parking_space PRIMARY KEY (parking_space_id)
