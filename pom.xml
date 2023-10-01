@@ -17,6 +17,7 @@
         <java.version>17</java.version>
         <spring-cloud.version>2022.0.4</spring-cloud.version>
         <hibernate-spatial.version>6.2.7.Final</hibernate-spatial.version>
+        <spring-eureka-client.version>4.0.2</spring-eureka-client.version>
         <jts-core.version>1.19.0</jts-core.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
     </properties>
@@ -34,8 +35,13 @@
             <artifactId>flyway-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <version>${spring-eureka-client.version}</version>
         </dependency>
 
         <dependency>
