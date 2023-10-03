@@ -26,7 +26,7 @@ public class BookingStateChangeInterceptor extends StateMachineInterceptorAdapte
      * */
     @Override
     public void postStateChange(State<BookingState, BookingEvent> state, Message<BookingEvent> message, Transition<BookingState, BookingEvent> transition, StateMachine<BookingState, BookingEvent> stateMachine, StateMachine<BookingState, BookingEvent> rootStateMachine) {
-        Optional.ofNullable(message).flatMap(msg -> Optional.ofNullable((UUID) msg.getHeaders().getOrDefault(BookingServiceImpl.BOOKING_ID_HEADER, -1L))).ifPresent(bookingId -> {
+        Optional.ofNullable(message).flatMap(msg -> Optional.ofNullable((UUID) msg.getHeaders().getOrDefault(DefaultBookingService.BOOKING_ID_HEADER, -1L))).ifPresent(bookingId -> {
             BookingEntity booking = bookingRepository.getReferenceById(bookingId);
             booking.setState(state.getId());
             bookingRepository.saveAndFlush(booking);

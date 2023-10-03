@@ -3,7 +3,8 @@ package com.fhdo.bookingservice.domain.sm.actions;
 import com.fhdo.bookingservice.config.RabbitMqConfiguration;
 import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
-import com.fhdo.bookingservice.domain.request.BookingConfirmationRequest;
+import com.fhdo.bookingservice.domain.request.BookingConfirmationMessageRequest;
+import com.fhdo.bookingservice.entities.BookingEntity;
 import com.fhdo.bookingservice.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.statemachine.action.Action;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -27,25 +29,33 @@ public class ConfirmBookingAction implements Action<BookingState, BookingEvent> 
 
     @Override
     public void execute(StateContext<BookingState, BookingEvent> stateContext) {
-        BookingConfirmationRequest request = Optional.ofNullable(stateContext)
+        BookingConfirmationMessageRequest request = Optional.ofNullable(stateContext)
                 .map(StateContext::getMessage)
                 .map(Message::getHeaders)
-                .map(messageHeaders -> messageHeaders.get(BookingConfirmationRequest.HEADER_NAME, BookingConfirmationRequest.class))
+                .map(messageHeaders -> messageHeaders.get(BookingConfirmationMessageRequest.HEADER_NAME, BookingConfirmationMessageRequest.class))
                 .orElseThrow(() -> new RuntimeException("Could not extract confirmation request from headers"));
 
         //check if an active booking already exists -> return
+        UUID bookingId = Optional.of(request).map(BookingConfirmationMessageRequest::getBookingId)
+                .orElseThrow(() -> new RuntimeException("Could not retrieve bookingId from BookingConfirmationRequest"));
 
-        //confirm booking: set to RESERVED. ACTIVE is based on listener receiving OCCUPIED message from the Parking Spot Queue.
-
-        //build the response and send over the message queue to the parking system to reserve and user service to notify.
-
-        try {
-            rabbitTemplate.convertAndSend(RabbitMqConfiguration.CONFIRM_BOOKING_QUEUE, request);
-        } catch (AmqpException e) {
-            log.error("Failed to send BookingConfirmationRquest to queue {} for booking id {}", RabbitMqConfiguration.CONFIRM_BOOKING_QUEUE, request.getBookingId());
-            throw e;
+        BookingEntity booking = repository.getReferenceById(bookingId);
+        if (booking == null) {
+            throw new RuntimeException("Could not find a booking with id: " + bookingId);
         }
 
-        log.debug("Sent confirmation request to queue for booking id {}", request.getBookingId());
+
+        try {
+            // send to Parking service to reserve parking spot
+            rabbitTemplate.convertAndSend(RabbitMqConfiguration.CONFIRM_BOOKING_QUEUE, request);
+            log.debug("Sent confirmation request to queue for booking id {}", request.getBookingId());
+            booking.setState(BookingState.PENDING_CONFIRMATION);
+        } catch (AmqpException e) {
+            log.error("Failed to send BookingConfirmationRquest to queue {} for booking id {}", RabbitMqConfiguration.CONFIRM_BOOKING_QUEUE, request.getBookingId());
+            booking.setState(BookingState.DECLINED);
+            throw e;
+        } finally {
+            repository.saveAndFlush(booking);
+        }
     }
 }
