@@ -2,7 +2,7 @@ logging:
   level:
     org:
       springframework:
-        amqp: DEBUG
+        amqp: false
         statemachine: DEBUG
 spring:
   cloud:
@@ -20,11 +20,12 @@ spring:
     schemas: test
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
       naming:
         physical-strategy: com.vladmihalcea.hibernate.type.util.CamelCaseToSnakeCaseNamingStrategy
     properties:
       hibernate:
+        default_schema: test
         jdbc:
           time_zone: UTC
     show-sql: true
