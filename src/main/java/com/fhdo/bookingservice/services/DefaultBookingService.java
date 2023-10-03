@@ -2,8 +2,12 @@ package com.fhdo.bookingservice.services;
 
 import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
-import com.fhdo.bookingservice.domain.request.BookingRequest;
+import com.fhdo.bookingservice.domain.request.BookingCreationRequest;
+import com.fhdo.bookingservice.domain.request.BookingMessageRequest;
+import com.fhdo.bookingservice.domain.response.BookingBaseResponse;
+import com.fhdo.bookingservice.domain.response.BookingFullResponse;
 import com.fhdo.bookingservice.entities.BookingEntity;
+import com.fhdo.bookingservice.mappers.MapStructMapper;
 import com.fhdo.bookingservice.repository.BookingRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -15,27 +19,34 @@ import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
-public class BookingServiceImpl implements BookingService {
+public class DefaultBookingService implements BookingService, BookingMessageResponseHandler {
     public static final String BOOKING_ID_HEADER = "booking_id";
     private final BookingRepository bookingRepository;
     private final StateMachineFactory<BookingState, BookingEvent> stateMachineFactory;
     private final BookingStateChangeInterceptor bookingStateChangeInterceptor;
+    private final MapStructMapper mapper;
 
     @Override
     @Transactional
-    public BookingEntity newBooking(BookingEntity booking) {
-        booking.setState(BookingState.NEW);
-        return bookingRepository.saveAndFlush(booking);
+    public BookingBaseResponse newBooking(BookingCreationRequest request) {
+        BookingEntity entity = mapper.bookingCreationRequestToBookingEntity(request);
+        return mapper.bookingEntityToBaseResponse(bookingRepository.saveAndFlush(entity));
     }
 
     @Override
     @Transactional
-    public void validate(BookingRequest request) {
-        sendEventWithRequest(request.getBookingId(), BookingEvent.CHECK_VALIDITY, request);
+    public void confirmBooking(UUID bookingId) {
+        sendEvent(bookingId, BookingEvent.BOOK_PARKING_SLOT);
+    }
+
+    @Override
+    public BookingFullResponse getBooking(UUID bookingId) {
+        return mapper.bookingEntityToFullResponse(bookingRepository.getReferenceById(bookingId));
     }
 
     @Override
@@ -45,11 +56,38 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
+    public void delete(UUID bookingId) {
+        BookingEntity entity = Optional.of(bookingId)
+                .map(bookingRepository::getReferenceById)
+                .orElseThrow(() -> new RuntimeException("Booking: %s could not be found.".formatted(bookingId)));
+
+        BookingState bookingState = entity.getState();
+
+        if (BookingState.DELETABLE_STATES.contains(bookingState)) {
+            bookingRepository.deleteById(bookingId);
+        } else {
+            throw new RuntimeException("Booking %s could not be deleted. It is not in an allowed state: %s".formatted(bookingId, bookingState));
+        }
+    }
+
+    @Override
+    @Transactional
     public void processConfirmationResult(UUID bookingId, Boolean isConfirmed) {
         if (isConfirmed) {
-            sendEvent(bookingId, BookingEvent.BOOKING_CONFIRMED);
+            bookingRepository.updateStateByBookingId(BookingState.CONFIRMED, bookingId);
         } else {
-            sendEvent(bookingId, BookingEvent.BOOKING_FAILED);
+            bookingRepository.updateStateByBookingId(BookingState.DECLINED, bookingId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void processCancellationResult(UUID bookingId, Boolean isConfirmed) {
+        if (isConfirmed) {
+            bookingRepository.updateStateByBookingId(BookingState.CANCELLED, bookingId);
+        } else {
+            throw new RuntimeException("Booking %s could not be cancelled. Failed to un-reserve parking spot".formatted(bookingId));
         }
     }
 
@@ -63,11 +101,11 @@ public class BookingServiceImpl implements BookingService {
 
     }
 
-    private void sendEventWithRequest(UUID bookingId, BookingEvent bookingEvent, BookingRequest request) {
+    private void sendEventWithRequest(UUID bookingId, BookingEvent bookingEvent, BookingMessageRequest request) {
         StateMachine<BookingState, BookingEvent> sm = build(bookingId);
         Message<BookingEvent> msg = MessageBuilder.withPayload(bookingEvent)
                 .setHeader(BOOKING_ID_HEADER, bookingId)
-                .setHeader(request.getHeader(),request)
+                .setHeader(request.getHeader(), request)
                 .build();
 
         sm.sendEvent(Mono.just(msg)).subscribe();
