@@ -1,5 +1,7 @@
 package com.fhdo.bookingservice.domain;
 
+import java.util.Set;
+
 /**
  * Enum class representing the possible states of a booking in a smart parking system.
  *
@@ -25,5 +27,8 @@ public enum BookingState {
     ACTIVE,             // parking spot has ongoing booking and parking spot is occupied
     OVERSTAY,           // Booking exceeding end time without leaving parking spot
     COMPLETED,
-    CANCELLED
+    CANCELLED;
+
+    public static final Set<BookingState> CANCELLABLE_STATES = Set.of(NEW, PENDING_CONFIRMATION, CONFIRMED);
+    public static final Set<BookingState> DELETABLE_STATES = Set.of(NEW, DECLINED, CANCELLED);
 }
