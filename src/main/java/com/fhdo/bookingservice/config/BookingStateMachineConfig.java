@@ -2,7 +2,8 @@ package com.fhdo.bookingservice.config;
 
 import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
-import com.fhdo.bookingservice.domain.request.BookingConfirmationRequest;
+import com.fhdo.bookingservice.domain.request.BookingConfirmationMessageRequest;
+import com.fhdo.bookingservice.domain.sm.actions.CancelBookingAction;
 import com.fhdo.bookingservice.domain.sm.actions.ConfirmBookingAction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,7 @@ import java.util.Optional;
 public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter<BookingState, BookingEvent> {
 
     private final ConfirmBookingAction confirmBookingAction;
+    private final CancelBookingAction cancelBookingAction;
     @Override
     public void configure(StateMachineStateConfigurer<BookingState, BookingEvent> states) throws Exception {
         states.withStates()
@@ -45,8 +47,15 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
                 .source(BookingState.NEW)
                 .target(BookingState.PENDING_CONFIRMATION)
                 .event(BookingEvent.BOOK_PARKING_SLOT)
-                .guard((stateContext -> stateContext.getMessageHeaders().containsKey(BookingConfirmationRequest.HEADER_NAME)))
+                .guard((stateContext -> stateContext.getMessageHeaders().containsKey(BookingConfirmationMessageRequest.HEADER_NAME)))
                 .action(confirmBookingAction)
+                .and()
+
+                .withExternal()
+                .source(BookingState.NEW)
+                .target(BookingState.NEW)
+                .event(BookingEvent.BOOKING_CANCELLED)
+                .action(cancelBookingAction)
                 .and()
                 // parking service successfully reserves the parking slot
                 .withExternal()
@@ -61,11 +70,11 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
                 .event(BookingEvent.BOOKING_FAILED)// TODO: RabbitMQListener for BookingConfirmation from ParkingService
                 .and()
                 // user request to cancel his booking
-                // TODO: Rest endpoint /cancel
                 .withExternal()
                 .source(BookingState.PENDING_CONFIRMATION)
-                .target(BookingState.CANCELLED)
+                .target(BookingState.PENDING_CONFIRMATION)
                 .event(BookingEvent.BOOKING_CANCELLED)
+                .action(cancelBookingAction)
                 .and()
                 // TODO: RabbitMQListener receive an event that the reserved parking spot is now occupied (e.g through SUMO)
                 .withExternal()
@@ -73,10 +82,11 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
                 .target(BookingState.ACTIVE)
                 .event(BookingEvent.VEHICLE_PARKED)
                 .and()
-                // TODO: Rest endpoint /cancel
+
                 .withExternal()
                 .source(BookingState.CONFIRMED)
-                .target(BookingState.CANCELLED)
+                .target(BookingState.CONFIRMED)
+                .action(cancelBookingAction)
                 .event(BookingEvent.BOOKING_CANCELLED)
                 .and()
                 // active booking (parking spot still occupied) exceeds allocated time
