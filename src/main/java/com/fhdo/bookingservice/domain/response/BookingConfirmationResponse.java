@@ -11,9 +11,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public final class BookingConfirmationResponse extends BookingBaseResponse {
 
-    private UUID parkingLotId;
+    private UUID parkingId;
 
-    private UUID parkingSpotId;
+    private Integer parkingSpotId;
 
     private UUID vehicleId;
 
