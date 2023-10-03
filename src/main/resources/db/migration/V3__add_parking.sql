@@ -14,4 +14,4 @@ CREATE TABLE parking_lot
 );
 
 ALTER TABLE booking
-    ADD CONSTRAINT FK_BOOKING_ON_PARKING FOREIGN KEY (parking_lot_id) REFERENCES parking_lot (parking_id);
+    ADD CONSTRAINT FK_BOOKING_ON_PARKING FOREIGN KEY (parking_id) REFERENCES parking_lot (parking_id);

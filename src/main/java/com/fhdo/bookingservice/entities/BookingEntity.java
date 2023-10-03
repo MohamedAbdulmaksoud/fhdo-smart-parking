@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "booking", schema = "shared")
+@Table(name = "booking")
 public class BookingEntity {
 
     @Id
@@ -30,14 +30,14 @@ public class BookingEntity {
     @Column(nullable = false, updatable = false)
     private UUID userId;
 
-    @Column(name = "parking_id", nullable = false, updatable = false, insertable = false)
-    private UUID parkingLotId;
+    @Column(name = "parking_id", nullable = false, updatable = false)
+    private UUID parkingId;
 
     @ManyToOne
-    @JoinColumn(name = "parking_id", nullable = false, updatable = false)
+    @JoinColumn(name = "parking_id", nullable = false, updatable = false, insertable = false)
     private ParkingLotEntity parkingLot;
 
-    private UUID parkingSpotId;
+    private Integer parkingSpotId;
 
     private UUID vehicleId;
 
