@@ -3,7 +3,7 @@ package com.fhdo.bookingservice.config;
 import com.fhdo.bookingservice.BuilderUtils;
 import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
-import com.fhdo.bookingservice.domain.request.BookingConfirmationRequest;
+import com.fhdo.bookingservice.domain.request.BookingConfirmationMessageRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ class BookingStateMachineConfigTest {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
         sm.startReactively().subscribe();
 
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
+        BookingConfirmationMessageRequest request = BuilderUtils.bookingConfirmationRequest();
 
         sm.startReactively().subscribe();
 
@@ -61,7 +61,7 @@ class BookingStateMachineConfigTest {
     void testBookingStateTransitionFromPendingConfirmationToPendingConfirmation() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
 
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
+        BookingConfirmationMessageRequest request = BuilderUtils.bookingConfirmationRequest();
 
         sm.getStateMachineAccessor()
                 .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.PENDING_CONFIRMATION, null, null, null)));
@@ -79,7 +79,7 @@ class BookingStateMachineConfigTest {
     @Test
     void testBookingStateTransitionFromPendingConfirmationToConfirmed() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
+        BookingConfirmationMessageRequest request = BuilderUtils.bookingConfirmationRequest();
 
         sm.getStateMachineAccessor()
                 .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.PENDING_CONFIRMATION, null, null, null)));
@@ -94,7 +94,7 @@ class BookingStateMachineConfigTest {
     @Test
     void testBookingStateTransitionFromPendingConfirmationToDeclined() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
+        BookingConfirmationMessageRequest request = BuilderUtils.bookingConfirmationRequest();
 
         sm.getStateMachineAccessor()
                 .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.PENDING_CONFIRMATION, null, null, null)));
@@ -110,7 +110,7 @@ class BookingStateMachineConfigTest {
     @Test
     void testBookingStateTransitionFromPendingConfirmationToCancelled() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
+        BookingConfirmationMessageRequest request = BuilderUtils.bookingConfirmationRequest();
 
         // Set the initial state to NEW
         sm.getStateMachineAccessor()
@@ -127,7 +127,7 @@ class BookingStateMachineConfigTest {
     @Test
     void testBookingStateTransitionFromConfirmedToActive() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
+        BookingConfirmationMessageRequest request = BuilderUtils.bookingConfirmationRequest();
 
         sm.getStateMachineAccessor()
                 .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.CONFIRMED, null, null, null)));
@@ -143,7 +143,7 @@ class BookingStateMachineConfigTest {
     @Test
     void testBookingStateTransitionFromConfirmedToCancelled() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
+        BookingConfirmationMessageRequest request = BuilderUtils.bookingConfirmationRequest();
 
         sm.getStateMachineAccessor()
                 .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.CONFIRMED, null, null, null)));
@@ -159,7 +159,7 @@ class BookingStateMachineConfigTest {
     @Test
     void testBookingStateTransitionFromActiveToOverstay() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
+        BookingConfirmationMessageRequest request = BuilderUtils.bookingConfirmationRequest();
 
         sm.getStateMachineAccessor()
                 .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.ACTIVE, null, null, null)));
@@ -175,7 +175,7 @@ class BookingStateMachineConfigTest {
     @Test
     void testBookingStateTransitionFromActiveToCompleted() {
         StateMachine<BookingState, BookingEvent> sm = factory.getStateMachine();
-        BookingConfirmationRequest request = BuilderUtils.bookingConfirmationRequest();
+        BookingConfirmationMessageRequest request = BuilderUtils.bookingConfirmationRequest();
 
         sm.getStateMachineAccessor()
                 .doWithRegion(stateMachine -> stateMachine.resetStateMachine(new DefaultStateMachineContext<>(BookingState.ACTIVE, null, null, null)));
