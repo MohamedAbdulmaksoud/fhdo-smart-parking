@@ -1,18 +1,21 @@
 package com.fhdo.bookingservice.services;
 
-import com.fhdo.bookingservice.domain.request.BookingRequest;
-import com.fhdo.bookingservice.entities.BookingEntity;
+import com.fhdo.bookingservice.domain.request.BookingCreationRequest;
+import com.fhdo.bookingservice.domain.response.BookingBaseResponse;
+import com.fhdo.bookingservice.domain.response.BookingFullResponse;
 
 import java.util.UUID;
 
 public interface BookingService {
 
-    BookingEntity newBooking(BookingEntity booking);
+    BookingBaseResponse newBooking(BookingCreationRequest request);
 
-    void validate(BookingRequest request);
+
+    void confirmBooking(UUID bookingId);
+
+    BookingFullResponse getBooking(UUID bookingId);
 
     void cancel(UUID bookingId);
 
-    void processConfirmationResult(UUID bookingId, Boolean isValid);
-
+    void delete(UUID bookingId);
 }
