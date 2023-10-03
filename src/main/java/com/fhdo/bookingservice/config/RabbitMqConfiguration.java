@@ -17,12 +17,14 @@ public class RabbitMqConfiguration {
     public static final String CONFIRM_BOOKING_QUEUE = "booking.confirm.request";
     public static final String CONFIRM_BOOKING_RESPONSE_QUEUE = "order.confirm.response";
 
+    public static final String CANCEL_BOOKING_QUEUE = "booking.cancel.request";
+
+    public static final String CANCEL_BOOKING_RESPONSE = "booking.cancel.response";
 
 
-
-/*
-* Used as the default listener factory to create message listener container responsible to serve endpoints
-* */
+    /*
+     * Used as the default listener factory to create message listener container responsible to serve endpoints
+     * */
     @Bean
     public RabbitListenerContainerFactory<SimpleMessageListenerContainer> containerFactory() {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
@@ -32,12 +34,22 @@ public class RabbitMqConfiguration {
     }
 
     @Bean
-    public Queue confirmOrderQueue(){
+    public Queue confirmBookingQueue() {
         return new Queue(CONFIRM_BOOKING_QUEUE);
     }
 
     @Bean
-    public Queue confirmOrderResponse(){
+    public Queue confirmBookingResponse() {
         return new Queue(CONFIRM_BOOKING_RESPONSE_QUEUE);
+    }
+
+    @Bean
+    public Queue cancelBookingQueue() {
+        return new Queue(CANCEL_BOOKING_QUEUE);
+    }
+
+    @Bean
+    public Queue cancelBookingResponse() {
+        return new Queue(CANCEL_BOOKING_RESPONSE);
     }
 }
