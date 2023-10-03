@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingConfirmationRequest implements BookingRequest, Serializable {
+public class BookingConfirmationMessageRequest implements BookingMessageRequest, Serializable {
 
     public static final String HEADER_NAME = "confirmation_request";
 
@@ -21,8 +21,8 @@ public class BookingConfirmationRequest implements BookingRequest, Serializable 
 
     private UUID bookingId;
     private UUID userId;
-    private UUID parkingLotId;
-    private UUID parkingSpotId;
+    private UUID parkingId;
+    private Integer parkingSpotId;
     private OffsetDateTime startTime;
     private OffsetDateTime endTime;
 
