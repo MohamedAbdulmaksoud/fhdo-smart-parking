@@ -24,6 +24,7 @@ spring:
         physical-strategy: com.vladmihalcea.hibernate.type.util.CamelCaseToSnakeCaseNamingStrategy
     properties:
       hibernate:
+        default_schema: shared
         jdbc:
           time_zone: UTC
     show-sql: true
