@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "parking_space", schema = "shared")
+@Table(name = "parking_space", schema = "shared", uniqueConstraints={@UniqueConstraint(columnNames = {"parking_id", "internal_id"})})
 public class ParkingSpaceEntity {
 
     @Id
@@ -29,7 +29,7 @@ public class ParkingSpaceEntity {
     @JoinColumn(name = "parking_id", nullable = false, updatable = false)
     private ParkingLotEntity parkingSpace;
 
-    @Column(unique = true)
+    @Column(name = "internal_id")
     private Integer internalId;
 
     private Boolean isReserved;
