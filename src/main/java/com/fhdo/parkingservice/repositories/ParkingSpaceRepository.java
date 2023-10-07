@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -21,5 +22,7 @@ public interface ParkingSpaceRepository extends JpaRepository<ParkingSpaceEntity
 
     @Query("select p.internalId from ParkingSpaceEntity p where p.parkingSpace.placeId = :parkingId and p.isReserved = false and p.isOccupied = false")
     List<Integer> findByIsReservedFalseAndIsOccupiedFalse(String parkingId);
+
+    Optional<ParkingSpaceEntity> findParkingSpaceEntityByParkingIdAndInternalId(UUID parkingSpaceId, Integer internalId);
 
 }
