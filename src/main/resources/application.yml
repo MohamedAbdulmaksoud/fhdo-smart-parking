@@ -30,6 +30,7 @@ spring:
       hibernate:
         jdbc:
           time_zone: UTC
+        default_schema: shared
     show-sql: false
 
   rabbitmq:
