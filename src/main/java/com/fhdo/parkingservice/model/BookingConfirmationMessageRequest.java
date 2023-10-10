@@ -1,5 +1,6 @@
 package com.fhdo.parkingservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +13,8 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BookingConfirmationMessageRequest {
-
-    public static final String HEADER_NAME = "confirmation_request";
 
     private UUID bookingId;
     private UUID userId;
