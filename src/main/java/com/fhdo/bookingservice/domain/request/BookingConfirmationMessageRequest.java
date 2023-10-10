@@ -1,11 +1,11 @@
 package com.fhdo.bookingservice.domain.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -13,11 +13,10 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookingConfirmationMessageRequest implements BookingMessageRequest, Serializable {
+public class BookingConfirmationMessageRequest implements BookingMessageRequest {
 
+    @JsonIgnore
     public static final String HEADER_NAME = "confirmation_request";
-
-    static final long serialVersionUID = -7142764179621490243L;
 
     private UUID bookingId;
     private UUID userId;
