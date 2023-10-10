@@ -13,10 +13,7 @@ spring:
   flyway:
     create-schemas: true
     schemas: shared
-  jackson:
-    deserialization:
-      accept-empty-array-as-null-object: true
-      accept-empty-string-as-null-object: true
+
   jpa:
     hibernate:
       ddl-auto: none
