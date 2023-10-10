@@ -5,6 +5,7 @@ import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
 import com.fhdo.bookingservice.domain.request.BookingCancellationMessageRequest;
 import com.fhdo.bookingservice.entities.BookingEntity;
+import com.fhdo.bookingservice.mappers.BookingEntityMapper;
 import com.fhdo.bookingservice.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,8 @@ public class CancelBookingAction implements Action<BookingState, BookingEvent> {
 
     private final BookingRepository repository;
 
+    private final BookingEntityMapper mapper;
+
     @Override
     public void execute(StateContext<BookingState, BookingEvent> stateContext) {
         BookingEntity booking = Optional.ofNullable(stateContext)
@@ -41,7 +44,9 @@ public class CancelBookingAction implements Action<BookingState, BookingEvent> {
         //check if booking is in valid state to be cancelled
         if (BookingState.CANCELLABLE_STATES.contains(booking.getState())) {
             try {
-                rabbitTemplate.convertAndSend(RabbitMqConfiguration.CANCEL_BOOKING_QUEUE, new BookingCancellationMessageRequest(booking.getBookingId(), booking.getParkingId(), booking.getParkingSpotId()));
+                BookingCancellationMessageRequest request = mapper.bookingToCancellationRequest(booking);
+
+                rabbitTemplate.convertAndSend(RabbitMqConfiguration.CANCEL_BOOKING_QUEUE, request);
             } catch (AmqpException e) {
                 log.error("Failed to send BookingCancellationMessageRequest to queue {} for booking id {}", RabbitMqConfiguration.CONFIRM_BOOKING_QUEUE, booking.getBookingId());
                 throw e;
