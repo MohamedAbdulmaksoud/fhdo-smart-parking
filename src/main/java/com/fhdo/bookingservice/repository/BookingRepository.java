@@ -9,14 +9,15 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Repository
-public interface BookingRepository extends JpaRepository<BookingEntity, UUID>
-{
+public interface BookingRepository extends JpaRepository<BookingEntity, UUID> {
     @Transactional
     @Modifying
     @Query("update BookingEntity b set b.state = ?1 where b.bookingId = ?2")
     int updateStateByBookingId(@NonNull BookingState state, UUID bookingId);
 
+    boolean existsByParkingIdAndParkingSpotIdAndStartTimeAfterAndEndTimeBeforeAllIgnoreCase(UUID parkingId, Integer parkingSpotId, OffsetDateTime startTime, OffsetDateTime endTime);
 }
