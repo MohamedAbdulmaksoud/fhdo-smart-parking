@@ -2,7 +2,6 @@ package com.fhdo.bookingservice.config;
 
 import com.fhdo.bookingservice.domain.BookingEvent;
 import com.fhdo.bookingservice.domain.BookingState;
-import com.fhdo.bookingservice.domain.request.BookingConfirmationMessageRequest;
 import com.fhdo.bookingservice.domain.sm.actions.CancelBookingAction;
 import com.fhdo.bookingservice.domain.sm.actions.ConfirmBookingAction;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +46,6 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
                 .source(BookingState.NEW)
                 .target(BookingState.PENDING_CONFIRMATION)
                 .event(BookingEvent.BOOK_PARKING_SLOT)
-                .guard((stateContext -> stateContext.getMessageHeaders().containsKey(BookingConfirmationMessageRequest.HEADER_NAME)))
                 .action(confirmBookingAction)
                 .and()
 
@@ -61,13 +59,13 @@ public class BookingStateMachineConfig extends EnumStateMachineConfigurerAdapter
                 .withExternal()
                 .source(BookingState.PENDING_CONFIRMATION)
                 .target(BookingState.CONFIRMED)
-                .event(BookingEvent.BOOKING_CONFIRMED) // TODO: RabbitMQListener for BookingConfirmation from ParkingService 
+                .event(BookingEvent.BOOKING_CONFIRMED)
                 .and()
                 // any exception thrown during confirmBookingAction or received from parking service
                 .withExternal()
                 .source(BookingState.PENDING_CONFIRMATION)
                 .target(BookingState.DECLINED)
-                .event(BookingEvent.BOOKING_FAILED)// TODO: RabbitMQListener for BookingConfirmation from ParkingService
+                .event(BookingEvent.BOOKING_FAILED)
                 .and()
                 // user request to cancel his booking
                 .withExternal()
