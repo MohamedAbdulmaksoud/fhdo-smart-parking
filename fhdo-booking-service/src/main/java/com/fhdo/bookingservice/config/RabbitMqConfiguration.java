@@ -22,6 +22,44 @@ import org.springframework.context.annotation.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Configuration class for setting up RabbitMQ in the Booking Service.
+ *
+ * The {@code RabbitMqConfiguration} class configures RabbitMQ components required for messaging within the Booking Service.
+ * It sets up queues for booking requests and responses, configures message conversion, and creates listener containers for
+ * handling incoming messages.
+ *
+ * <p>This class provides beans for:
+ * <ul>
+ *     <li>Message conversion using {@link Jackson2JsonMessageConverter} and {@link ObjectMapper} for JSON processing.</li>
+ *     <li>Mapping message types to Java classes using {@link DefaultClassMapper}.</li>
+ *     <li>Defining RabbitMQ queues for booking confirmation and cancellation requests and responses.</li>
+ *     <li>Creating a default listener factory for message handling with {@link SimpleRabbitListenerContainerFactory}.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>Key Beans:
+ * <ul>
+ *     <li>{@code classMapper()} - Configures a {@link DefaultClassMapper} to map message types to Java classes.</li>
+ *     <li>{@code rabbitTemplate(ConnectionFactory)} - Provides a {@link RabbitTemplate} configured with a JSON message converter.</li>
+ *     <li>{@code jsonConverter()} - Defines a {@link Jackson2JsonMessageConverter} for converting messages to and from JSON.</li>
+ *     <li>{@code containerFactory()} - Sets up a {@link SimpleRabbitListenerContainerFactory} for creating message listener containers.</li>
+ *     <li>{@code confirmBookingQueue()} - Creates a {@link Queue} for booking confirmation requests.</li>
+ *     <li>{@code confirmBookingResponse()} - Creates a {@link Queue} for booking confirmation responses.</li>
+ *     <li>{@code cancelBookingQueue()} - Creates a {@link Queue} for booking cancellation requests.</li>
+ *     <li>{@code cancelBookingResponse()} - Creates a {@link Queue} for booking cancellation responses.</li>
+ * </ul>
+ * </p>
+ *
+ * @see ObjectMapper
+ * @see Jackson2JsonMessageConverter
+ * @see DefaultClassMapper
+ * @see RabbitTemplate
+ * @see SimpleRabbitListenerContainerFactory
+ * @see Queue
+ * @see ConnectionFactory
+ */
+
 @Configuration
 @EnableRabbit
 @RequiredArgsConstructor

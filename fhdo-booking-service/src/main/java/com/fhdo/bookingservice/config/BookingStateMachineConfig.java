@@ -18,9 +18,28 @@ import org.springframework.statemachine.state.State;
 import java.util.EnumSet;
 import java.util.Optional;
 
-/*
-* https://docs.spring.io/spring-statemachine/docs/3.2.x/reference/#sm-config
-* */
+/**
+ * Configuration class for managing the lifecycle of parking slot bookings using a state machine.
+ *
+ * The {@code BookingStateMachineConfig} class defines the states that a booking can transition through,
+ * including {@code NEW}, {@code PENDING_CONFIRMATION}, {@code CONFIRMED}, {@code ACTIVE}, {@code OVERSTAY},
+ * {@code CANCELLED}, and {@code COMPLETED}. It specifies the events that trigger transitions between these states,
+ * such as booking confirmation, cancellation, and completion. Additionally, it configures actions to be executed
+ * during these transitions, including {@code confirmBookingAction} and {@code cancelBookingAction}.
+ *
+ * By leveraging Spring State Machine, this class ensures that the booking process is managed in a consistent
+ * and efficient manner, facilitating smooth transitions and handling of various booking scenarios.
+ *
+ * <p>Key methods:
+ * <ul>
+ *     <li>{@code configure(StateMachineStateConfigurer<BookingState, BookingEvent> states)} - Configures the states and their end states.</li>
+ *     <li>{@code configure(StateMachineTransitionConfigurer<BookingState, BookingEvent> transitions)} - Defines state transitions and associated events.</li>
+ *     <li>{@code configure(StateMachineConfigurationConfigurer<BookingState, BookingEvent> config)} - Sets up the state machine's configuration and logging.</li>
+ * </ul>
+ * </p>
+ * <a href="https://docs.spring.io/spring-statemachine/docs/3.2.x/reference/#sm-config">...</a>
+ */
+
 @Slf4j
 @RequiredArgsConstructor
 @EnableStateMachineFactory

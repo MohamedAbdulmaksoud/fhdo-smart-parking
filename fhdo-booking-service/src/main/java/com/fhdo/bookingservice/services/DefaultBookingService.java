@@ -21,7 +21,25 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 import java.util.UUID;
-
+/**
+ * Implementation of {@link BookingService} and {@link BookingMessageResponseHandler} that handles booking operations
+ * and state transitions using a state machine.
+ *
+ * <p>{@code DefaultBookingService} provides methods for creating, confirming, cancelling, retrieving, and deleting
+ * bookings. It also handles the processing of booking confirmation and cancellation results by interacting with
+ * the state machine and updating the booking entity's state in the repository.</p>
+ *
+ * <p>This service uses a state machine to manage the lifecycle of bookings, with various events triggering state transitions.
+ * It integrates with {@link BookingRepository} to persist and retrieve booking entities and uses {@link MapStructMapper}
+ * to map between domain objects and entity representations.</p>
+ *
+ * @see BookingService
+ * @see BookingMessageResponseHandler
+ * @see BookingEntity
+ * @see BookingRepository
+ * @see MapStructMapper
+ * @see StateMachine
+ */
 @RequiredArgsConstructor
 @Service
 public class DefaultBookingService implements BookingService, BookingMessageResponseHandler {

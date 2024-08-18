@@ -21,6 +21,40 @@ import java.util.UUID;
 
 import static com.fhdo.bookingservice.services.DefaultBookingService.BOOKING_ID_HEADER;
 
+/**
+ * Action class for handling the cancellation of bookings within the state machine.
+ *
+ * The {@code CancelBookingAction} class implements the {@link Action} interface and is used to process the cancellation
+ * of bookings as part of the state machine workflow. It retrieves the booking entity from the repository, checks if the
+ * booking is in a cancellable state, and then sends a cancellation request to the RabbitMQ queue.
+ *
+ * <p>This action is triggered when the state machine transitions to a state that requires booking cancellation. It performs
+ * the following steps:
+ * <ul>
+ *     <li>Extracts the booking ID from the state context message headers.</li>
+ *     <li>Fetches the booking entity from the repository using the booking ID.</li>
+ *     <li>Checks if the booking is in a valid state for cancellation.</li>
+ *     <li>Converts the booking entity to a {@link BookingCancellationMessageRequest} and sends it to the RabbitMQ queue.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>Key Dependencies:
+ * <ul>
+ *     <li>{@code RabbitTemplate} - Used for sending messages to RabbitMQ queues.</li>
+ *     <li>{@code BookingRepository} - Provides access to booking entities in the database.</li>
+ *     <li>{@code BookingEntityMapper} - Maps booking entities to cancellation request objects.</li>
+ * </ul>
+ * </p>
+ *
+ * @see Action
+ * @see StateContext
+ * @see BookingEvent
+ * @see BookingState
+ * @see BookingEntity
+ * @see BookingCancellationMessageRequest
+ * @see RabbitMqConfiguration
+ */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor

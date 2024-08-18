@@ -8,6 +8,30 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
+/**
+ * Listener class for processing booking confirmation results from the RabbitMQ queue.
+ *
+ * The {@code BookingConfirmationResultListener} class listens for messages from the RabbitMQ queue related to booking
+ * confirmation responses. Upon receiving a confirmation result message, it processes the result by delegating to
+ * {@link DefaultBookingService}.
+ *
+ * <p>This class is annotated with {@link Component} to be recognized as a Spring bean and {@link RabbitListener} to
+ * listen for messages from the RabbitMQ queue specified in {@link RabbitMqConfiguration#CONFIRM_BOOKING_RESPONSE_QUEUE}. When
+ * a {@link BookingConfirmationResponse} is received, it extracts the booking ID and confirmation status, then
+ * processes the result using the {@code bookingService}.</p>
+ *
+ * <p>Key Dependencies:
+ * <ul>
+ *     <li>{@code DefaultBookingService} - Handles the business logic for processing booking confirmation results.</li>
+ *     <li>{@code RabbitMqConfiguration} - Provides the configuration for RabbitMQ queues.</li>
+ *     <li>{@code BookingConfirmationResponse} - Represents the message payload for booking confirmation responses.</li>
+ * </ul>
+ * </p>
+ *
+ * @see DefaultBookingService
+ * @see RabbitMqConfiguration
+ * @see BookingConfirmationResponse
+ */
 
 @RequiredArgsConstructor
 @Component
