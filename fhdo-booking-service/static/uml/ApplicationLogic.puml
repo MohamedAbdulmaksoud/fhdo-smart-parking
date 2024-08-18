@@ -1,0 +1,45 @@
+@startuml
+title Booking Service Application Logic
+
+actor User
+
+participant BaseController
+participant DefaultBookingService
+participant StateMachine
+participant Database <<Database>>
+queue "Confirm Booking Queue" as ConfirmQueue <<Queue>>
+queue "Cancel Booking Queue" as CancelQueue <<Queue>>
+
+User -> BaseController : Create Booking Request
+BaseController -> DefaultBookingService : newBooking(BookingCreationRequest)
+DefaultBookingService -> Database : saveAndFlush(BookingEntity)
+Database --> DefaultBookingService : BookingBaseResponse
+DefaultBookingService --> BaseController : BookingBaseResponse
+
+User -> BaseController : Confirm Booking Request
+BaseController -> DefaultBookingService : confirmBooking(bookingId)
+DefaultBookingService -> StateMachine : sendEvent(BookingEvent.BOOK_PARKING_SLOT)
+StateMachine -> Database : getReferenceById(bookingId)
+Database --> StateMachine : BookingEntity
+StateMachine -> ConfirmQueue : send BookingConfirmationMessageRequest
+ConfirmQueue --> StateMachine : Confirmation Sent
+StateMachine --> DefaultBookingService : Confirmation Event Processed
+DefaultBookingService --> BaseController : Confirmation Result
+
+User -> BaseController : Cancel Booking Request
+BaseController -> DefaultBookingService : cancel(bookingId)
+DefaultBookingService -> StateMachine : sendEvent(BookingEvent.BOOKING_CANCELLED)
+StateMachine -> Database : getReferenceById(bookingId)
+Database --> StateMachine : BookingEntity
+StateMachine -> CancelQueue : send BookingCancellationMessageRequest
+CancelQueue --> StateMachine : Cancellation Sent
+StateMachine --> DefaultBookingService : Cancellation Event Processed
+DefaultBookingService --> BaseController : Cancellation Result
+
+User -> BaseController : Retrieve Booking Request
+BaseController -> DefaultBookingService : getBooking(bookingId)
+DefaultBookingService -> Database : getReferenceById(bookingId)
+Database --> DefaultBookingService : BookingEntity
+DefaultBookingService --> BaseController : BookingFullResponse
+
+@enduml
