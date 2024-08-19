@@ -1,0 +1,48 @@
+@startuml
+' Define styles for better visuals
+skinparam package {
+    BackgroundColor #F5F5F5
+    BorderColor #333333
+}
+skinparam component {
+    BackgroundColor #FFFFFF
+    BorderColor #666666
+}
+skinparam cloud {
+    BackgroundColor #E0E0E0
+    BorderColor #333333
+}
+skinparam database {
+    BackgroundColor #E0E0E0
+    BorderColor #333333
+}
+
+cloud "Google Maps API" as GMaps
+database "PostgreSQL" as PostgreSQL
+cloud "RabbitMQ" as RabbitMQ
+
+package "FHDO Smart Parking System" {
+    [Booking Service] as Booking
+    [Parking Service] as Parking
+    [Eureka Server] as Eureka
+    [Cloud Gateway] as Gateway
+    [Config Server] as Config
+    [MQTT Client] as MQTT
+}
+
+Booking -[hidden]-> Parking
+Booking --> RabbitMQ : Sends messages
+Booking --> PostgreSQL : Stores bookings
+Parking --> RabbitMQ : Publishes updates
+Parking --> PostgreSQL : Retrieves parking data
+Parking --> GMaps : Uses for distance calculation
+MQTT --> RabbitMQ : Subscribes to updates
+Gateway --> Eureka : Service discovery
+Gateway --> Config : Retrieves configuration
+MQTT --> Eureka : Service registration
+MQTT --> Config : Retrieves configuration
+
+Booking --> GMaps : Uses for location services
+Parking --> GMaps : Uses for location services
+
+@enduml
