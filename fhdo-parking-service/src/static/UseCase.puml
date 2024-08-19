@@ -1,0 +1,43 @@
+@startuml
+'https://plantuml.com/use-case-diagram
+
+actor User
+
+(Find Nearby Parking by Geolocation) as FindNearbyParkingGeo
+(Find Nearby Parking by Address) as FindNearbyParkingAddr
+(Get Available Parking Spaces) as GetAvailableSpaces
+(Confirm Booking) as ConfirmBooking
+(Cancel Booking) as CancelBooking
+
+User --> FindNearbyParkingGeo
+User --> FindNearbyParkingAddr
+User --> GetAvailableSpaces
+User --> ConfirmBooking
+User --> CancelBooking
+
+note right of FindNearbyParkingGeo
+    Allows the user to find nearby
+    parking based on geolocation.
+end note
+
+note right of FindNearbyParkingAddr
+    Allows the user to find nearby
+    parking based on a provided address.
+end note
+
+note right of GetAvailableSpaces
+    Retrieves and displays available
+    parking spots and their details.
+end note
+
+note right of ConfirmBooking
+    Processes a booking request and
+    confirms the reservation of a parking spot.
+end note
+
+note right of CancelBooking
+    Handles the cancellation of a parking
+    reservation and updates availability.
+end note
+
+@enduml

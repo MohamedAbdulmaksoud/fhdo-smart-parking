@@ -1,0 +1,141 @@
+@startuml
+
+class ParkingLotEntity {
+    - id: UUID
+    - name: String
+    - address: Address
+    - geoLocation: Geolocation
+    - openingTime: LocalTime
+    - closingTime: LocalTime
+    - totalCapacity: Integer
+    + getOpeningHours(): LocalTime
+}
+
+class Geolocation {
+    - latitude: double
+    - longitude: double
+}
+
+class Address {
+    - street: String
+    - city: String
+    - state: String
+    - zipCode: String
+}
+
+class NearbyParkingResponse {
+    - placeId: String
+    - geoLocation: Geolocation
+    - fullName: String
+    - address: Address
+    - totalCapacity: Integer
+    - hourlyRates: Map<String, BigDecimal>
+    - distance: String
+    - timeFromOrigin: String
+    - timeToDestination: String
+    - totalTripTime: Long
+    - isOpen: Boolean
+}
+
+class DistanceServiceResponse {
+    - location: Geolocation
+    - distanceFromDestination: String
+    - timeFromOrigin: String
+    - timeToDestination: String
+    - totalTripTime: Long
+}
+
+class ParkingSpotCount {
+    - type: ParkingSpotType
+    - availableSpots: Long
+}
+
+class ParkingSpaceEntity {
+    - internalId: Integer
+    - parkingSpotType: ParkingSpotType
+    - isOccupied: Boolean
+    - isReserved: Boolean
+}
+
+class ParkingLotRepository {
+    + findNearbyParking(longitude: double, latitude: double, distanceInMeters: double): List<ParkingLotEntity>
+}
+
+class ParkingSpaceRepository {
+    + getAvailableSpaces(parkingId: String): List<ParkingSpotCount>
+    + findByIsReservedFalseAndIsOccupiedFalse(parkingId: String): List<Integer>
+    + findParkingSpaceEntityByParkingIdAndInternalId(parkingId: UUID, internalId: Integer): Optional<ParkingSpaceEntity>
+}
+
+class GoogleMapsService {
+    + getLocationOfAddress(address: String): Optional<Geolocation>
+    + getRealTimeTravelDuration(origin: Geolocation, destination: Geolocation, nearbyParkings: List<Geolocation>): List<DistanceServiceResponse>
+}
+
+class ParkingLotService {
+    + findNearbyParking(origin: Geolocation, destination: Geolocation, distanceInMeters: double): List<NearbyParkingResponse>
+    + findNearbyParking(address: String, distanceInMeters: double): List<NearbyParkingResponse>
+}
+
+class ParkingSpaceService {
+    + getAvailableSpaces(parkingId: String): AvailableParkingSpacesResponse
+}
+
+class MapStructMapper {
+    + parkingLotEntityListToNearbyParkingResponseList(entities: List<ParkingLotEntity>): List<NearbyParkingResponse>
+    + parkingLotEntityToNearbyParkingResponse(parkingLotEntity: ParkingLotEntity): NearbyParkingResponse
+}
+
+class BookingMessageRequestHandler {
+    + processConfirmationRequest(request: BookingConfirmationMessageRequest): void
+    + processCancellationRequest(request: BookingCancellationMessageRequest): void
+}
+
+class BookingConfirmationMessageRequest {
+    - bookingId: UUID
+    - userId: UUID
+    - parkingId: UUID
+    - parkingSpotId: Integer
+    - startTime: OffsetDateTime
+    - endTime: OffsetDateTime
+}
+
+class BookingConfirmationResponse {
+    - bookingId: UUID
+    - isConfirmed: Boolean
+}
+
+class BookingCancellationMessageRequest {
+    - bookingId: UUID
+    - parkingId: UUID
+    - parkingSpotId: Integer
+}
+
+class BookingCancellationMessageResponse {
+    - bookingId: UUID
+    - isCancelled: Boolean
+}
+
+enum ParkingSpotType {
+    REGULAR
+    HANDICAPPED
+    ELECTRIC_VEHICLE
+    MOTORCYCLE
+    VIP
+}
+
+ParkingLotEntity --> Geolocation
+ParkingLotEntity --> Address
+NearbyParkingResponse --> Geolocation
+NearbyParkingResponse --> Address
+DistanceServiceResponse --> Geolocation
+ParkingSpotCount --> ParkingSpotType
+ParkingSpaceEntity --> ParkingSpotType
+
+ParkingLotService --> ParkingLotRepository
+ParkingLotService --> GoogleMapsService
+ParkingLotService --> MapStructMapper
+ParkingSpaceService --> ParkingSpaceRepository
+BookingMessageRequestHandler --> ParkingSpaceRepository
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+
+actor User
+entity "ParkingLotService" as Service
+entity "GeocodingService" as Geocoding
+entity "DistanceService" as Distance
+entity "ParkingLotRepository" as Repo
+entity "GoogleMapsService" as Maps
+
+User -> Service: findNearbyParking(origin, destination, distanceInMeters)
+Service -> Repo: findNearbyParking(longitude, latitude, distanceInMeters)
+Repo --> Service: List<ParkingLotEntity>
+Service -> Maps: getRealTimeTravelDuration(origin, destination, nearbyParkings)
+Maps --> Service: List<DistanceServiceResponse>
+Service -> Service: mergeParkingRepsonse(nearbyParkingResponse, distanceServiceResponse)
+Service --> User: List<NearbyParkingResponse>
+
+@enduml
