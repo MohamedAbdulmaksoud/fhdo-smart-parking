@@ -3,6 +3,7 @@ package com.fhdo.parkingservice.controller;
 import com.fhdo.parkingservice.model.dtos.NearbyParkingRequest;
 import com.fhdo.parkingservice.model.dtos.NearbyParkingResponse;
 import com.fhdo.parkingservice.service.ParkingLotService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,10 +20,8 @@ public class ParkingLotController {
     private final ParkingLotService service;
 
     @PostMapping("/nearby")
-    public List<NearbyParkingResponse> getNearbyParkingsByGeolocation(@RequestBody NearbyParkingRequest request) {
-        return service.findNearbyParking(request.origin(),
-                request.destination(),
-                request.distanceInMeters());
+    public List<NearbyParkingResponse> getNearbyParkingsByGeolocation(@Valid @RequestBody NearbyParkingRequest request) {
+        return service.findNearbyParking(request);
     }
 
     @PostMapping("/nearby/{address}")

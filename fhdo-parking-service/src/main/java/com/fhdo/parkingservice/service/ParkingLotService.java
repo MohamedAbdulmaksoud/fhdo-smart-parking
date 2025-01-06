@@ -3,9 +3,12 @@ package com.fhdo.parkingservice.service;
 import com.fhdo.parkingservice.entities.Geolocation;
 import com.fhdo.parkingservice.entities.ParkingLotEntity;
 import com.fhdo.parkingservice.mapper.MapStructMapper;
+import com.fhdo.parkingservice.model.SortingPreference;
 import com.fhdo.parkingservice.model.dtos.DistanceServiceResponse;
+import com.fhdo.parkingservice.model.dtos.NearbyParkingRequest;
 import com.fhdo.parkingservice.model.dtos.NearbyParkingResponse;
 import com.fhdo.parkingservice.repositories.ParkingLotRepository;
+import com.fhdo.parkingservice.service.maps.DistanceConverter;
 import com.fhdo.parkingservice.service.maps.DistanceService;
 import com.fhdo.parkingservice.service.maps.GeocodingService;
 import lombok.RequiredArgsConstructor;
@@ -29,17 +32,28 @@ public class ParkingLotService {
 
     private final MapStructMapper mapper;
 
-    public List<NearbyParkingResponse> findNearbyParking(Geolocation origin, Geolocation destination, double distanceInMeters) {
-        List<ParkingLotEntity> parkingLotEntities = repository.findNearbyParking(destination.getLongitude(), destination.getLatitude(), distanceInMeters);
+    public List<NearbyParkingResponse> findNearbyParking(NearbyParkingRequest request) {
+        List<ParkingLotEntity> parkingLotEntities = repository.findNearbyParking(request.destination().getLongitude(), request.destination().getLatitude(), request.distanceInMeters());
         List<Geolocation> nearbyParkings = parkingLotEntities.stream().map(ParkingLotEntity::getGeoLocation).toList();
 
         List<NearbyParkingResponse> nearbyParkingResponses = mapper.parkingLotEntityListToNearbyParkingResponseList(parkingLotEntities);
         if (nearbyParkingResponses.isEmpty()) {
             return nearbyParkingResponses;
         }
-        List<DistanceServiceResponse> distanceResponses = distanceService.getRealTimeTravelDuration(origin, destination, nearbyParkings);
+        List<DistanceServiceResponse> distanceResponses = distanceService.getRealTimeTravelDuration(request.origin(), request.destination(), nearbyParkings);
 
-        return mergeParkingRepsonse(nearbyParkingResponses, distanceResponses);
+        List<NearbyParkingResponse> mergedResponses = mergeParkingRepsonse(nearbyParkingResponses, distanceResponses);
+
+        SortingPreference preference = request.preference();
+
+        switch (preference) {
+            case LEAST_WALKING_DISTANCE ->
+                    mergedResponses.sort(Comparator.comparingLong(response -> DistanceConverter.convertToMeters(response.getDistance())));
+            case LEAST_TRIP_TIME ->
+                    mergedResponses.sort(Comparator.comparingLong(NearbyParkingResponse::getTotalTripTime));
+            default -> throw new IllegalArgumentException("Unsupported SortingPreference: " + preference);
+        }
+        return mergedResponses;
     }
 
     public List<NearbyParkingResponse> findNearbyParking(String address, double distanceInMeters) {
