@@ -169,3 +169,34 @@ Configures the `ObjectMapper` used for JSON serialization and deserialization.
 ### `LocalDiscovery`
 
 Configures local service discovery for the application when running in a "local-discovery" profile.
+
+
+## Troubleshooting
+
+### RabbitMQ Authentication Error
+If the following error is encountered while running the application:
+
+`Caused by: com.rabbitmq.client.AuthenticationFailureException: ACCESS_REFUSED - Login was refused using authentication mechanism PLAIN. For details see the broker logfile.
+`
+This issue typically occurs because the RabbitMQ credentials are not configured.
+
+#### Resolution Steps
+
+1. **Verify RabbitMQ Login Credentials**
+   - Ensure that the credentials are correctly configured in `application.properties` or `application.yml` file.
+
+2. **Create a New RabbitMQ User**
+   1. Log in to the RabbitMQ Management UI (typically accessible at http://localhost:15672)
+      - Navigate to the "Admin" tab and create a new user.
+      - Assign appropriate tags and permissions to the user.
+
+   2. Alternatively, a new user can be created via the RabbitMQ CLI:
+    
+      `rabbitmqctl add_user myuser mypassword`
+      `rabbitmqctl set_user_tags myuser administrator`
+      `rabbitmqctl set_permissions -p / myuser ".*" ".*" ".*"`
+3. Restart the Application After making these changes, restart both the RabbitMQ server and the application.
+
+#####  Additional Notes
+Ensure that RabbitMQ is running and accessible at the configured host and port.
+For Docker setups, verify that the RabbitMQ container is up and running.
