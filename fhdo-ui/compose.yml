@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  smart-parking-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=production
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - smart-parking-network
+
+networks:
+  smart-parking-network:
+    driver: bridge
