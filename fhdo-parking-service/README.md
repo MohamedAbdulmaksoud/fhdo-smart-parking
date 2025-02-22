@@ -37,14 +37,14 @@ The Parking Service handles operations related to parking lots and parking space
 - **Server Port**: Configured to run on port `8083`.
 - **Database**:
 - **URL**: `jdbc:postgresql://localhost:5432/parking`
-- **Username**: `user`
+- **Username**: `userEntity`
 - **Password**: `password`
 - **Flyway**:
 - **Schemas**: `shared`
 - **RabbitMQ**:
 - **Host**: `localhost`
 - **Port**: `5672`
-- **Username**: `user`
+- **Username**: `userEntity`
 - **Password**: `password`
 - **JPA**:
 - **Ddl Auto**: `none`
@@ -163,7 +163,7 @@ These entities are used to map database records to Java objects, facilitating in
 
 **`BookingConfirmationMessageRequest`**
 
-- Represents a request to confirm a booking, including booking ID, user ID, parking ID, spot ID, and booking times.
+- Represents a request to confirm a booking, including booking ID, userEntity ID, parking ID, spot ID, and booking times.
 
 **`BookingConfirmationResponse`**
 

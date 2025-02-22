@@ -33,6 +33,7 @@ public class ParkingLotService {
     private final MapStructMapper mapper;
 
     public List<NearbyParkingResponse> findNearbyParking(NearbyParkingRequest request) {
+        log.info("received parking request: {}", request.toString());
         List<ParkingLotEntity> parkingLotEntities = repository.findNearbyParking(request.destination().getLongitude(), request.destination().getLatitude(), request.distanceInMeters());
         List<Geolocation> nearbyParkings = parkingLotEntities.stream().map(ParkingLotEntity::getGeoLocation).toList();
 

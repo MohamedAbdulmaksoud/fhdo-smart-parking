@@ -1,15 +1,18 @@
 package com.fhdo.service;
 
-import com.fhdo.entity.User;
+import com.fhdo.entity.UserEntity;
 import com.fhdo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -22,6 +25,9 @@ class UserServiceTest {
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
 
     @InjectMocks
     private UserService userService;
@@ -39,21 +45,25 @@ class UserServiceTest {
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> {
+            UserEntity savedUser = invocation.getArgument(0);
+            savedUser.setId(UUID.randomUUID());
+            return savedUser;
+        });
 
-        User result = userService.registerUser(name, email, password);
+        UserEntity result = userService.registerUser(name, email, password);
 
         assertNotNull(result);
         assertEquals(name, result.getName());
         assertEquals(email, result.getEmail());
         assertEquals("encodedPassword", result.getPassword());
-        verify(userRepository, times(1)).save(any(User.class));
+        verify(userRepository, times(1)).save(any(UserEntity.class));
     }
 
     @Test
     void testRegisterUser_DuplicateEmail() {
         String email = "john@example.com";
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(new User()));
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(new UserEntity()));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> userService.registerUser("John Doe", email, "password123"));
@@ -65,42 +75,52 @@ class UserServiceTest {
     void testAuthenticateUser_Success() {
         String email = "john@example.com";
         String password = "password123";
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword("encodedPassword");
+        UUID userId = UUID.randomUUID();
 
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        UserEntity userEntity = new UserEntity();
+        userEntity.setId(userId);
+        userEntity.setEmail(email);
+        userEntity.setPassword("encodedPassword");
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(userEntity));
         when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(true);
+        doNothing().when(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
 
-        Optional<User> result = userService.authenticateUser(email, password);
+        UUID result = userService.authenticateUser(email, password, authenticationManager);
 
-        assertTrue(result.isPresent());
-        assertEquals(email, result.get().getEmail());
+        assertNotNull(result);
+        assertEquals(userId, result);
+        verify(authenticationManager, times(1))
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
     }
 
     @Test
     void testAuthenticateUser_InvalidPassword() {
         String email = "john@example.com";
         String password = "wrongPassword";
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword("encodedPassword");
 
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        UserEntity userEntity = new UserEntity();
+        userEntity.setEmail(email);
+        userEntity.setPassword("encodedPassword");
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(userEntity));
         when(passwordEncoder.matches(password, "encodedPassword")).thenReturn(false);
 
-        Optional<User> result = userService.authenticateUser(email, password);
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> userService.authenticateUser(email, password, authenticationManager));
 
-        assertTrue(result.isEmpty());
+        assertEquals("Invalid email or password", exception.getMessage());
     }
 
     @Test
     void testAuthenticateUser_EmailNotFound() {
         String email = "unknown@example.com";
+
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        Optional<User> result = userService.authenticateUser(email, "password123");
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> userService.authenticateUser(email, "password123", authenticationManager));
 
-        assertTrue(result.isEmpty());
+        assertEquals("Invalid email or password", exception.getMessage());
     }
 }

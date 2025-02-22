@@ -187,10 +187,10 @@ This issue typically occurs because the RabbitMQ credentials are not configured.
 
 2. **Create a New RabbitMQ User**
    1. Log in to the RabbitMQ Management UI (typically accessible at http://localhost:15672)
-      - Navigate to the "Admin" tab and create a new user.
-      - Assign appropriate tags and permissions to the user.
+      - Navigate to the "Admin" tab and create a new userEntity.
+      - Assign appropriate tags and permissions to the userEntity.
 
-   2. Alternatively, a new user can be created via the RabbitMQ CLI:
+   2. Alternatively, a new userEntity can be created via the RabbitMQ CLI:
     
       `rabbitmqctl add_user myuser mypassword`
       `rabbitmqctl set_user_tags myuser administrator`

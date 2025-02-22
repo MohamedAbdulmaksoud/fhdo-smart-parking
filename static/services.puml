@@ -19,6 +19,7 @@ skinparam database {
 
 cloud "Google Maps API" as GMaps
 database "PostgreSQL" as PostgreSQL
+database "H2 Database" as H2DB
 cloud "RabbitMQ" as RabbitMQ
 
 package "FHDO Smart Parking System" {
@@ -28,6 +29,8 @@ package "FHDO Smart Parking System" {
     [Cloud Gateway] as Gateway
     [Config Server] as Config
     [MQTT Client] as MQTT
+    [User Service] as UserService
+    [FHDO UI] as UI
 }
 
 Booking -[hidden]-> Parking
@@ -45,4 +48,8 @@ MQTT --> Config : Retrieves configuration
 Booking --> GMaps : Uses for location services
 Parking --> GMaps : Uses for location services
 
+UserService --> H2DB : Stores user data
+UserService --> RabbitMQ : Sends authentication events
+UI --> Gateway : User interface interactions
+UI --> UserService : User authentication and management
 @enduml

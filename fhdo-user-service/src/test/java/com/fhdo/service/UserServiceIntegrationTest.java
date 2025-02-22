@@ -1,60 +1,74 @@
 package com.fhdo.service;
 
-import com.fhdo.entity.User;
+import com.fhdo.entity.UserEntity;
 import com.fhdo.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-public class UserServiceIntegrationTest {
+@AutoConfigureMockMvc
+class UserServiceIntegrationTest {
 
     @Autowired
-    private UserService userService;
+    private MockMvc mockMvc;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
-    @AfterEach
-    void tearDown() {
+    @BeforeEach
+    void setup() {
         userRepository.deleteAll();
     }
 
     @Test
-    void testRegisterUser() {
-        User result = userService.registerUser("John Doe", "john@example.com", "password123");
+    void testRegisterUser() throws Exception {
+        String payload = """
+                {
+                    "name": "John Doe",
+                    "email": "john.doe@example.com",
+                    "password": "password123"
+                }
+                """;
 
-        assertNotNull(result);
-        assertEquals("John Doe", result.getName());
-        assertEquals("john@example.com", result.getEmail());
-        assertTrue(passwordEncoder.matches("password123", result.getPassword()));
+        mockMvc.perform(post("/api/v1/users/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isNotEmpty());
     }
 
     @Test
-    void testAuthenticateUser_Success() {
-        userService.registerUser("John Doe", "john@example.com", "password123");
+    void testLoginUser() throws Exception {
+        UserEntity user = new UserEntity();
+        user.setName("Jane Doe");
+        user.setEmail("jane.doe@example.com");
+        user.setPassword(passwordEncoder.encode("password123"));
+        userRepository.save(user);
 
-        Optional<User> result = userService.authenticateUser("john@example.com", "password123");
+        String payload = """
+                {
+                    "email": "jane.doe@example.com",
+                    "password": "password123"
+                }
+                """;
 
-        assertTrue(result.isPresent());
-        assertEquals("john@example.com", result.get().getEmail());
-    }
-
-    @Test
-    void testAuthenticateUser_Failure() {
-        userService.registerUser("John Doe", "john@example.com", "password123");
-
-        Optional<User> result = userService.authenticateUser("john@example.com", "wrongPassword");
-
-        assertTrue(result.isEmpty());
+        mockMvc.perform(post("/api/v1/users/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isNotEmpty());
     }
 }

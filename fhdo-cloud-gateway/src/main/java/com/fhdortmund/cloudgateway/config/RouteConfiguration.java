@@ -16,6 +16,8 @@ public class RouteConfiguration {
                 .route(r -> r.path("/api/v1/bookings/**").uri("http://localhost:8081"))
                 .route(r -> r.path("/api/v1/vehicle-registration/**").uri("http://localhost:8082"))
                 .route(r -> r.path("/api/v1/parking-lots/**").uri("http://localhost:8083"))
+                .route(r -> r.path("/api/v1/users/**").uri("http://localhost:8084"))
+                .route(r -> r.path("/ui/**").uri("http://localhost:8094"))
                 .build();
     }
 }

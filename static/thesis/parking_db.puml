@@ -1,0 +1,40 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE Data_Collection {
+  :parkings.json;
+  :ParkingLot.sql;
+  :Data includes parking lot information;
+  :such as location, coordinates, names, etc.;
+}
+
+RECTANGLE Data_Processing {
+  :script.py reads JSON data;
+  :Extracts relevant fields;
+  :e.g., geographic coordinates, parking names;
+  :Prepares the data for database import;
+}
+
+RECTANGLE SQL_Generation {
+  :sqlGenerator.py converts data;
+  :Generates SQL queries;
+  :Creates and populates database tables;
+}
+
+RECTANGLE Municipality_Matching {
+  :street_municipality.py matches;
+  :parking spaces with municipalities;
+  :Ensures correct association with Dortmund;
+}
+
+RECTANGLE Database_Integration {
+  :SQL file imported into local DB;
+  :Database includes tables for parking data;
+  :Fields: coordinates, addresses, lot names, etc.;
+}
+
+Data_Collection --> Data_Processing : "Parking data extracted"
+Data_Processing --> SQL_Generation : "Generate SQL queries"
+SQL_Generation --> Database_Integration : "Import data into DB"
+Municipality_Matching --> Database_Integration : "Associate parking with municipalities"
+@enduml
